@@ -17,5 +17,21 @@
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--jetBrains-mono);
+  overflow-x: hidden;
+}
+.ant-menu {
+  background: none;
+}
+/* #image-brand {
+  background-image: url("/brand.png");
+} */
+.svg-product {
+  background-image: url("/product.svg");
+}
+
+@media screen and (max-width: 480px) {
+  #header {
+    background-size: 100%;
+  }
 }

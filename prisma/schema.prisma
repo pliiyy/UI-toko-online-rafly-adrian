@@ -1,0 +1,50 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum EGender {
+  Laki_laki
+  Perempuan
+}
+
+enum ERole {
+  DEVELOPER
+  ADMIN
+  MARKETING
+}
+
+model User {
+  id           String  @id @default(uuid())
+  namaLengkap  String
+  username     String  @unique
+  email        String  @unique
+  phone        String  @unique
+  password     String
+  nip          String
+  alamat       String
+  kelurahan    String
+  kecamatan    String
+  kota         String
+  provinsi     String
+  jenisKelamin EGender
+  role         ERole
+
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  UserMenu UserMenu[]
+}
+
+model UserMenu {
+  id     String  @id @default(uuid())
+  access String
+  path   String
+  User   User?   @relation(fields: [userId], references: [id])
+  userId String?
+}
