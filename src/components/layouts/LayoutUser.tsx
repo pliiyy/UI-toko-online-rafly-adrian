@@ -5,6 +5,7 @@ import {
   BookFilled,
   CalculatorFilled,
   DashboardFilled,
+  DesktopOutlined,
   FormOutlined,
   LogoutOutlined,
   MenuOutlined,
@@ -12,7 +13,8 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { IMenuList } from "../IInterfaces";
-import { ModalMessageProps } from "../GlobalUtils";
+import { ModalMessageProps } from "../utils/ServerUtils";
+import { useUser } from "../contexts/UserContext";
 
 export default function LayoutUser({
   children,
@@ -30,10 +32,11 @@ export default function LayoutUser({
     desc: "",
     type: "error",
   });
+  const user = useUser();
 
   const handleLogout = async () => {
     setLoading(true);
-    await fetch("/api/auth")
+    await fetch("/api/auth", { method: "PUT" })
       .then((res) => res.json())
       .then((res: { msg: string; status: number }) => {
         if (res.status !== 200) {
@@ -71,7 +74,7 @@ export default function LayoutUser({
 
   return (
     <div className="flex gap-1">
-      <div className="flex-2 px-2 py-2 bg-gradient-to-tr from-green-400 to-blue-500 text-gray-50 hidden sm:block">
+      <div className="flex-2 px-2 py-2 bg-gradient-to-tr from-green-400 to-blue-300 text-gray-50 hidden sm:block">
         <div className="flex justify-center">
           <Button size="small" block onClick={() => setInline(!inline)}>
             <MenuOutlined />
@@ -88,10 +91,13 @@ export default function LayoutUser({
             alt="User Image"
           />{" "}
           <div>
-            <p className="font-bold">SYIHABUDIN TSANI</p>
-            <div className="flex justify-between my-2">
-              <p>IT</p>
-              <p>PUSAT</p>
+            <p className="font-bold">
+              {user && user.namaLengkap.toUpperCase()}
+            </p>
+            <div className="flex justify-between my-1 opacity-50">
+              {/* <p>IT</p>
+              <p>PUSAT</p> */}
+              <p>{user && user.role}</p>
             </div>
           </div>
         </div>
@@ -101,10 +107,11 @@ export default function LayoutUser({
           inlineCollapsed={inline}
           className="border-none"
           onClick={(e) => router.push(e.key)}
+          theme="dark"
         />
       </div>
       <div className="flex-1">
-        <div className="flex justify-between items-center px-2 py-2 bg-gradient-to-tr from-green-400 to-blue-500 text-gray-50">
+        <div className="flex justify-between items-center px-2 py-2 bg-gradient-to-tr from-green-400 to-blue-300 text-gray-50">
           <div className="flex-1 font-bold drop-shadow-md text-xl">
             {process.env.NEXT_PUBLIC_APP_SHORTNAME}
           </div>
@@ -124,7 +131,7 @@ export default function LayoutUser({
         </div>
         <div
           className={`w-[96vw] ${
-            inline ? "sm:w-[92vw]" : "sm:w-[81vw]"
+            inline ? "sm:w-[92vw]" : "sm:w-[82vw]"
           } h-[92vh] mx-auto`}
         >
           {children}
@@ -142,6 +149,7 @@ export default function LayoutUser({
             className="border-none"
             mode="inline"
             onClick={(e) => router.push(e.key)}
+            theme="dark"
           />
           <div className="my-2 p-2">
             <div className="w-[100px]">
@@ -230,7 +238,7 @@ export const menus: IMenuList[] = [
     key: "/auths/monitoring",
     access: [],
     checked: false,
-    icon: <BookFilled />,
+    icon: <DesktopOutlined />,
     style: { color: "#fefe" },
   },
   {
@@ -299,6 +307,15 @@ export const menus: IMenuList[] = [
         style: { color: "#fefe" },
       },
     ],
+  },
+  {
+    title: "SOP / FAQ",
+    label: "SOP / FAQ",
+    key: "/auths/sop-faq",
+    access: [],
+    checked: false,
+    icon: <BookFilled />,
+    style: { color: "#fefe" },
   },
 ];
 

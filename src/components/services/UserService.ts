@@ -1,6 +1,6 @@
 import { Prisma, User } from "@prisma/client";
 import prisma from "../Prisma";
-import { defaultPage, defaultPageSize } from "../GlobalUtils";
+import { defaultPage, defaultPageSize } from "../utils/ServerUtils";
 import bcrypt from "bcrypt";
 import { IServiceResponse } from "../IInterfaces";
 

@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { CreateUser, FindUser } from "@/components/services/UserService";
 import { CreateMenu } from "@/components/services/MenuService";
 import { IUser } from "@/components/IInterfaces";
-import { GetProps, getQueryUrl } from "@/components/GlobalUtils";
+import { GetProps, getQueryUrl } from "@/components/utils/ServerUtils";
 
 export const GET = async (req: NextRequest) => {
   const filter: GetProps = getQueryUrl(req);

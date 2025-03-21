@@ -14,6 +14,7 @@ export const UI = () => {
     { name: "Proses", icon: <FileTextFilled />, total: "5" },
     { name: "Pencairan", icon: <DollarCircleFilled />, total: "5" },
   ];
+
   return (
     <div>
       <div className="flex flex-wrap-reverse gap-5">

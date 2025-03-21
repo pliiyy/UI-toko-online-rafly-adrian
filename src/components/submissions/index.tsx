@@ -3,7 +3,14 @@
 import { LoadingOutlined } from "@ant-design/icons";
 import dynamic from "next/dynamic";
 
-const UI = dynamic(
+const UIDataSimulation = dynamic(
+  () => import("@/components/submissions/SimulationData").then((d) => d.UI),
+  {
+    ssr: false,
+    loading: () => <LoadingOutlined />,
+  }
+);
+const UISimulation = dynamic(
   () => import("@/components/submissions/Simulations").then((d) => d.UI),
   {
     ssr: false,
@@ -11,4 +18,4 @@ const UI = dynamic(
   }
 );
 
-export { UI };
+export { UIDataSimulation, UISimulation };

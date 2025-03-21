@@ -8,7 +8,7 @@ import {
 import { Button, Form, Image, Input, Modal } from "antd";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { ModalMessageProps } from "../GlobalUtils";
+import { ModalMessageProps } from "../utils/ServerUtils";
 
 export default function LoginPage() {
   const [loading, setLoading] = useState(false);

@@ -22,7 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${jetBrains.variable} antialiased bg-gradient-to-br from-gray-50 to-blue-100`}
+        className={`${jetBrains.variable} antialiased bg-gradient-to-br from-gray-50 to-blue-100 min-h-[90vh]`}
       >
         <AntdConfig>
           <App>

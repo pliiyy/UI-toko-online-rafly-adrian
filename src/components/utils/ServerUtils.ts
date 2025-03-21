@@ -1,3 +1,4 @@
+import { ERole } from "@prisma/client";
 import { NextRequest } from "next/server";
 import React from "react";
 
@@ -16,6 +17,7 @@ export interface GetProps {
   tanggal?: string[];
   active?: string;
   status?: string;
+  role?: ERole;
 }
 
 export type UserPropsGet = {
@@ -42,5 +44,6 @@ export const getQueryUrl = (req: NextRequest) => {
     name: req.nextUrl.searchParams.get("name") || "",
     active: req.nextUrl.searchParams.get("active") || "",
     status: "",
-  };
+    role: req.nextUrl.searchParams.get("role") || "ADMIN",
+  } as GetProps;
 };

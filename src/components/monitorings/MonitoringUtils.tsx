@@ -1,8 +1,8 @@
 "use client";
-import { PlusCircleFilled } from "@ant-design/icons";
-import { Button, DatePicker, Input, Table, TableProps, Typography } from "antd";
+import { DatePicker, Input, Table, TableProps, Typography } from "antd";
 import moment from "moment";
-import { IDRFormat } from "../Utils";
+import { IDRFormat } from "../utils/FunctionUtils";
+import { ViewArchive, CreateAkad } from "../utils";
 const { RangePicker } = DatePicker;
 const { Paragraph } = Typography;
 
@@ -20,11 +20,13 @@ export const TableMonitoring = () => {
       title: "NO",
       dataIndex: "no",
       key: "no",
-      width: 50,
+      width: 30,
+      className: "text-xs",
       onHeaderCell: () => {
         return {
           ["style"]: {
             textAlign: "center",
+            fontSize: 12,
           },
         };
       },
@@ -36,11 +38,13 @@ export const TableMonitoring = () => {
       title: "NAMA PEMOHON",
       dataIndex: "namaPemohon",
       key: "namaPemohon",
+      className: "text-xs",
       width: 200,
       onHeaderCell: () => {
         return {
           ["style"]: {
             textAlign: "center",
+            fontSize: 12,
           },
         };
       },
@@ -49,11 +53,13 @@ export const TableMonitoring = () => {
       title: "NOMOR NIK",
       dataIndex: "nik",
       key: "nik",
+      className: "text-xs",
       width: 150,
       onHeaderCell: () => {
         return {
           ["style"]: {
             textAlign: "center",
+            fontSize: 12,
           },
         };
       },
@@ -62,11 +68,13 @@ export const TableMonitoring = () => {
       title: "PRODUK PEMBIAYAAN",
       dataIndex: "produk",
       key: "produk",
-      width: 150,
+      className: "text-xs",
+      width: 130,
       onHeaderCell: () => {
         return {
           ["style"]: {
             textAlign: "center",
+            fontSize: 12,
           },
         };
       },
@@ -75,11 +83,13 @@ export const TableMonitoring = () => {
       title: "JENIS PEMBIAYAAN",
       dataIndex: "jenis",
       key: "jenis",
+      className: "text-xs",
       width: 120,
       onHeaderCell: () => {
         return {
           ["style"]: {
             textAlign: "center",
+            fontSize: 12,
           },
         };
       },
@@ -88,12 +98,13 @@ export const TableMonitoring = () => {
       title: "PLAFOND",
       dataIndex: "plafond",
       key: "plafond",
-      width: 150,
-      className: "text-right",
+      width: 130,
+      className: "text-right text-xs",
       onHeaderCell: () => {
         return {
           ["style"]: {
             textAlign: "center",
+            fontSize: 12,
           },
         };
       },
@@ -106,56 +117,89 @@ export const TableMonitoring = () => {
       title: "TENOR",
       dataIndex: "tenor",
       key: "tenor",
-      width: 100,
-      className: "text-center",
+      width: 80,
+      className: "text-center text-xs",
       onHeaderCell: () => {
         return {
           ["style"]: {
             textAlign: "center",
+            fontSize: 12,
           },
         };
       },
     },
     {
-      title: "TANGGAL PENGAJUAUN",
-      dataIndex: "tanggal",
-      key: "tanggal",
+      title: "TGL PENGAJUAN",
+      dataIndex: "tanggalPengajuan",
+      key: "tanggalPengajuan",
+      width: 100,
+      className: "text-center text-xs",
+      onHeaderCell: () => {
+        return {
+          ["style"]: {
+            textAlign: "center",
+            fontSize: 12,
+          },
+        };
+      },
+    },
+    {
+      title: "AKAD KREDIT",
+      dataIndex: "akad",
+      className: "text-xs",
+      key: "akad",
       onHeaderCell: () => {
         return {
           ["style"]: {
             textAlign: "center",
             background: "oklch(0.795 0.184 86.047)",
             color: "oklch(0.967 0.003 264.542)",
+            fontSize: 12,
           },
         };
       },
       children: [
         {
-          title: "TANGGAL INPUT",
-          dataIndex: "tanggalPengajuan",
-          key: "tanggalPengajuan",
-          width: 130,
+          title: "CETAK",
+          dataIndex: "cetakAkad",
+          key: "cetakAkad",
+          className: "text-xs",
+          width: 80,
           onHeaderCell: () => {
             return {
               ["style"]: {
                 textAlign: "center",
                 background: "oklch(0.795 0.184 86.047)",
                 color: "oklch(0.967 0.003 264.542)",
+                fontSize: 12,
               },
             };
           },
+          render(value, record, index) {
+            return (
+              <div className="flex justify-center gap-1">
+                <CreateAkad title={record.namaPemohon.toUpperCase()} />
+                <ViewArchive
+                  src={record.berkasAkad}
+                  title={"Berkas Akad " + record.namaPemohon.toUpperCase()}
+                />
+              </div>
+            );
+          },
         },
         {
-          title: "TANGGAL AKAD",
+          title: "TANGGAL",
           dataIndex: "tanggalAkad",
           key: "tanggalAkad",
-          width: 130,
+          className: "text-xs",
+          width: 100,
           onHeaderCell: () => {
             return {
               ["style"]: {
                 textAlign: "center",
                 background: "oklch(0.795 0.184 86.047)",
                 color: "oklch(0.967 0.003 264.542)",
+                fontSize: 12,
               },
             };
           },
@@ -163,78 +207,51 @@ export const TableMonitoring = () => {
       ],
     },
     {
-      title: "STATUS PENGAJUAUN",
+      title: "STATUS PENGAJUAN",
       dataIndex: "statusPengajuan",
       key: "statusPengajuan",
-      onHeaderCell: () => {
-        return {
-          ["style"]: {
-            textAlign: "center",
-            background: "oklch(0.645 0.246 16.439)",
-            color: "oklch(0.967 0.003 264.542)",
-          },
-        };
-      },
-      children: [
-        {
-          title: "STATUS VERIF",
-          dataIndex: "statusVerifikasi",
-          key: "statusVerifikasi",
-          className: "text-center",
-          width: 130,
-          onHeaderCell: () => {
-            return {
-              ["style"]: {
-                textAlign: "center",
-                background: "oklch(0.645 0.246 16.439)",
-                color: "oklch(0.967 0.003 264.542)",
-              },
-            };
-          },
-        },
-        {
-          title: "STATUS APPROV",
-          dataIndex: "statusApproval",
-          key: "statusApproval",
-          className: "text-center",
-          width: 130,
-          onHeaderCell: () => {
-            return {
-              ["style"]: {
-                textAlign: "center",
-                background: "oklch(0.645 0.246 16.439)",
-                color: "oklch(0.967 0.003 264.542)",
-              },
-            };
-          },
-        },
-      ],
-    },
-    {
-      title: "KETERANGAN PENGAJUAN",
-      dataIndex: "statusPengajuan",
-      key: "statusPengajuan",
+      className: "text-xs",
       onHeaderCell: () => {
         return {
           ["style"]: {
             textAlign: "center",
             background: "oklch(0.685 0.169 237.323)",
             color: "oklch(0.967 0.003 264.542)",
+            fontSize: 12,
           },
         };
       },
       children: [
         {
-          title: "KET. VERIFIKASI",
-          dataIndex: "ketVerifikasi",
-          key: "ketVerifikasi",
-          width: 200,
+          title: "STATUS",
+          dataIndex: "statusApproval",
+          key: "statusApproval",
+          className: "text-xs text-center",
+          width: 100,
           onHeaderCell: () => {
             return {
               ["style"]: {
                 textAlign: "center",
                 background: "oklch(0.685 0.169 237.323)",
                 color: "oklch(0.967 0.003 264.542)",
+                fontSize: 12,
+              },
+            };
+          },
+        },
+        {
+          title: "KETERANGAN",
+          dataIndex: "ketApproval",
+          key: "ketApproval",
+          className: "text-xs",
+          width: 150,
+          onHeaderCell: () => {
+            return {
+              ["style"]: {
+                textAlign: "center",
+                background: "oklch(0.685 0.169 237.323)",
+                color: "oklch(0.967 0.003 264.542)",
+                fontSize: 12,
               },
             };
           },
@@ -242,40 +259,31 @@ export const TableMonitoring = () => {
             return (
               <Paragraph
                 ellipsis={{
-                  rows: 1,
+                  rows: 2,
                   expandable: "collapsible",
                 }}
+                className="text-xs"
               >
-                {record.ketVerifikasi}
+                {record.ketApproval}
               </Paragraph>
             );
           },
         },
         {
-          title: "KET. APPROVAL",
-          dataIndex: "ketApproval",
-          key: "ketApproval",
-          width: 200,
+          title: "TANGGAL",
+          dataIndex: "tanggalApproval",
+          key: "tanggalApproval",
+          className: "text-xs",
+          width: 100,
           onHeaderCell: () => {
             return {
               ["style"]: {
                 textAlign: "center",
                 background: "oklch(0.685 0.169 237.323)",
                 color: "oklch(0.967 0.003 264.542)",
+                fontSize: 12,
               },
             };
-          },
-          render(value, record, index) {
-            return (
-              <Paragraph
-                ellipsis={{
-                  rows: 1,
-                  expandable: "collapsible",
-                }}
-              >
-                {record.ketApproval}
-              </Paragraph>
-            );
           },
         },
       ],
@@ -284,20 +292,23 @@ export const TableMonitoring = () => {
       title: "STATUS PENCAIRAN",
       dataIndex: "statusPencairan",
       key: "statusPencairan",
+      className: "text-xs text-center",
       onHeaderCell: () => {
         return {
           ["style"]: {
             textAlign: "center",
             background: "oklch(0.723 0.219 149.579)",
             color: "oklch(0.967 0.003 264.542)",
+            fontSize: 12,
           },
         };
       },
       children: [
         {
-          title: "TANGGAL ",
-          dataIndex: "tanggalPencairan",
-          key: "tanggalPencairan",
+          title: "STATUS",
+          dataIndex: "statusPencairan",
+          key: "statusPencairan",
+          className: "text-xs text-center",
           width: 100,
           onHeaderCell: () => {
             return {
@@ -305,21 +316,24 @@ export const TableMonitoring = () => {
                 textAlign: "center",
                 background: "oklch(0.723 0.219 149.579)",
                 color: "oklch(0.967 0.003 264.542)",
+                fontSize: 12,
               },
             };
           },
         },
         {
-          title: "STATUS",
-          dataIndex: "statusPencairan",
-          key: "statusPencairan",
-          width: 120,
+          title: "TANGGAL ",
+          dataIndex: "tanggalPencairan",
+          key: "tanggalPencairan",
+          className: "text-xs",
+          width: 100,
           onHeaderCell: () => {
             return {
               ["style"]: {
                 textAlign: "center",
                 background: "oklch(0.723 0.219 149.579)",
                 color: "oklch(0.967 0.003 264.542)",
+                fontSize: 12,
               },
             };
           },
@@ -347,9 +361,6 @@ export const TableMonitoring = () => {
             </div>
             <div className="py-1 flex flex-col sm:flex-row gap-2 justify-between sm:items-end">
               <div className="flex-1 flex items-end gap-2 flex-wrap">
-                <Button className="bg-green-500 text-white" size="small">
-                  <PlusCircleFilled /> New
-                </Button>
                 <RangePicker size="small" />
               </div>
               <div className="flex-2">
@@ -374,7 +385,7 @@ export const TableMonitoring = () => {
               <Table.Summary.Cell index={3}></Table.Summary.Cell>
               <Table.Summary.Cell index={4}></Table.Summary.Cell>
               <Table.Summary.Cell index={5}></Table.Summary.Cell>
-              <Table.Summary.Cell index={6}>
+              <Table.Summary.Cell index={6} className="text-right">
                 {IDRFormat(plafond)}
               </Table.Summary.Cell>
               <Table.Summary.Cell index={7}></Table.Summary.Cell>
@@ -385,7 +396,6 @@ export const TableMonitoring = () => {
               <Table.Summary.Cell index={12}></Table.Summary.Cell>
               <Table.Summary.Cell index={13}></Table.Summary.Cell>
               <Table.Summary.Cell index={14}></Table.Summary.Cell>
-              <Table.Summary.Cell index={15}></Table.Summary.Cell>
             </Table.Summary.Row>
           );
         }}
@@ -395,23 +405,58 @@ export const TableMonitoring = () => {
 };
 
 const tempData = [
-  1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
-].map((d) => {
-  return {
-    key: d,
+  {
+    key: 1,
     namaPemohon: "Syihabudin Tsani",
     nik: "3204251108010006",
     produk: "Experience",
     jenis: "Baru",
-    plafond: 5000000 + 500 * d,
-    tenor: 10 + d,
+    plafond: 5000000,
+    tenor: 10,
     tanggalPengajuan: moment().format("DD/MM/YYYY"),
     tanggalAkad: moment().format("DD/MM/YYYY"),
-    tanggalPencairan: moment().format("DD/MM/YYYY"),
-    statusVerifikasi: "SETUJU",
+    berkasAkad:
+      "https://sipboss.kpfi.co.id/akad/200021016170_RATIYEM_19032025.pdf",
     statusApproval: "PENDING",
-    ketVerifikasi: "Data bagus dapat dilanjutkan",
+    tanggalApproval: moment().format("DD/MM/YYYY"),
     ketApproval: "Oke Lanjut Proses",
     statusPencairan: "TRANSFER",
-  };
-});
+    tanggalPencairan: moment().format("DD/MM/YYYY"),
+  },
+  {
+    key: 2,
+    namaPemohon: "Tsani Syihabudin",
+    nik: "3204251108010006",
+    produk: "Experience",
+    jenis: "Baru",
+    plafond: 5000000,
+    tenor: 10,
+    tanggalPengajuan: moment().format("DD/MM/YYYY"),
+    tanggalAkad: moment().format("DD/MM/YYYY"),
+    berkasAkad:
+      "https://sipboss.kpfi.co.id/akad/48003005600_SAPINI_21102024.pdf",
+    statusApproval: "PENDING",
+    tanggalApproval: moment().format("DD/MM/YYYY"),
+    ketApproval: "Oke Lanjut Proses",
+    statusPencairan: "TRANSFER",
+    tanggalPencairan: moment().format("DD/MM/YYYY"),
+  },
+  {
+    key: 3,
+    namaPemohon: "Video Tsani",
+    nik: "3204251108010006",
+    produk: "Experience",
+    jenis: "Baru",
+    plafond: 5000000,
+    tenor: 10,
+    tanggalPengajuan: moment().format("DD/MM/YYYY"),
+    tanggalAkad: moment().format("DD/MM/YYYY"),
+    berkasAkad:
+      "https://sipboss.kpfi.co.id/wawancara/WAWANCARA_1742285268176.mp4",
+    statusApproval: "PENDING",
+    tanggalApproval: moment().format("DD/MM/YYYY"),
+    ketApproval: "Oke Lanjut Proses",
+    statusPencairan: "TRANSFER",
+    tanggalPencairan: moment().format("DD/MM/YYYY"),
+  },
+];

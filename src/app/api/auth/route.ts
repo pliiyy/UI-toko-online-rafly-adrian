@@ -1,7 +1,7 @@
 import prisma from "@/components/Prisma";
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcrypt";
-import { signIn, signOut } from "@/components/auths/AuthUtils";
+import { getSession, signIn, signOut } from "@/components/auths/AuthUtils";
 import { User } from "@prisma/client";
 
 export const POST = async (req: NextRequest) => {
@@ -38,7 +38,7 @@ export const POST = async (req: NextRequest) => {
   }
 };
 
-export const GET = async (req: NextRequest) => {
+export const PUT = async (req: NextRequest) => {
   try {
     await signOut();
     return NextResponse.json(
@@ -52,6 +52,32 @@ export const GET = async (req: NextRequest) => {
         msg: "Internal Server Error",
         status: 500,
       },
+      { status: 500 }
+    );
+  }
+};
+
+export const GET = async (req: NextRequest) => {
+  try {
+    const result = await getSession();
+    if (!result) {
+      return NextResponse.json(
+        { msg: "Unauthorize", status: 401 },
+        { status: 401 }
+      );
+    }
+    const user = await prisma.user.findFirst({
+      where: { id: result.user.id },
+      include: { UserMenu: true },
+    });
+    return NextResponse.json(
+      { msg: "Success", status: 200, data: user },
+      { status: 200 }
+    );
+  } catch (err) {
+    console.log(err);
+    return NextResponse.json(
+      { msg: "Internal Server Error", status: 500 },
       { status: 500 }
     );
   }

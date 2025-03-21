@@ -15,7 +15,7 @@ import {
 import { useEffect, useState } from "react";
 import { IMenuList, IUser } from "../IInterfaces";
 import { menus } from "../layouts/LayoutUser";
-import { ModalMessageProps } from "../GlobalUtils";
+import { ModalMessageProps } from "../utils/ServerUtils";
 import { User, UserMenu as UMenu } from "@prisma/client";
 import moment from "moment";
 

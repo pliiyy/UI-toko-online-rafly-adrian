@@ -1,4 +1,4 @@
-import { User, UserMenu } from "@prisma/client";
+import { Dapem, JePem, ProPem, User, UserMenu } from "@prisma/client";
 import React from "react";
 
 export interface IServiceResponse<T> {
@@ -29,31 +29,9 @@ export interface IUser extends User {
   UserMenu: UserMenu[];
 }
 
-export interface IProPem {
-  name: string;
-  maxTenor: number;
-  maxPlafon: number;
-  maxAngsuran: number;
-  byAdmin: number;
-  byTabungan: number;
-  unit: number;
-  margin: number;
-}
-export interface IJepem {
-  name: string;
-  penalty: number;
-}
-export interface IDapem {
-  tanggal: Date;
-  nik: string;
-  namaPemohon: string;
-  alamat: string;
-  gajiBersih: number;
-  tenor: number;
-  plafon: number;
-  angsuran: number;
-  blokir: number;
-  pelunasan: number;
+export interface IProPem extends ProPem {}
+export interface IJePem extends JePem {}
+export interface IDapem extends Dapem {
   ProPem: IProPem;
-  Jepem: IJepem;
+  JePem: IJePem;
 }

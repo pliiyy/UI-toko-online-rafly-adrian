@@ -39,6 +39,7 @@ model User {
   updatedAt DateTime @default(now())
 
   UserMenu UserMenu[]
+  Dapem    Dapem[]
 }
 
 model UserMenu {
@@ -47,4 +48,65 @@ model UserMenu {
   path   String
   User   User?   @relation(fields: [userId], references: [id])
   userId String?
+}
+
+model ProPem {
+  id            String @id @default(uuid())
+  name          String
+  maxTenor      Int
+  maxPlafon     Int
+  maxAngsuran   Float
+  byAdmin       Float
+  byTabungan    Float
+  byMaterai     Float
+  byTatalaksana Float
+  unit          Int
+  margin        Float
+
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+  Dapem     Dapem[]
+}
+
+model JePem {
+  id      String @id @default(uuid())
+  name    String
+  penalty Float
+
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+  Dapem     Dapem[]
+}
+
+model Dapem {
+  id            String   @id @default(uuid())
+  tanggal       DateTime @default(now())
+  nik           String
+  namaPemohon   String
+  alamat        String
+  gajiBersih    Int
+  tenor         Int
+  plafon        Int
+  angsuran      Int
+  byAdmin       Float
+  byTabungan    Float
+  byMaterai     Int
+  byTatalaksana Int
+  blokir        Int
+  penalty       Float
+  pelunasan     Int
+  margin        Float
+
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  ProPem   ProPem @relation(fields: [proPemId], references: [id])
+  Jepem    JePem  @relation(fields: [jePemId], references: [id])
+  User     User   @relation(fields: [userId], references: [id])
+  proPemId String
+  jePemId  String
+  userId   String
 }

@@ -3,15 +3,30 @@ import { Button, Input, Modal, Select } from "antd";
 import moment from "moment";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { IDapem, IJepem, IProPem } from "../IInterfaces";
-import { AngsuranFlat, GetStartPaidDate, IDRFormat } from "../Utils";
+import { IDapem, IJePem, IProPem, IUser } from "../IInterfaces";
+import {
+  AngsuranFlat,
+  GetStartPaidDate,
+  IDRFormat,
+} from "../utils/FunctionUtils";
+import { useUser } from "../contexts/UserContext";
 
 export const UI = () => {
   const [error, setError] = useState<{ status: boolean; msg: string }>({
     status: false,
     msg: "",
   });
+  const user = useUser();
+  const [productsOption, setProductsOption] = useState<
+    {
+      label: string;
+      options: IProPem[];
+    }[]
+  >([]);
+  const [products, setProducts] = useState<IProPem[]>([]);
+  const [jepems, setJepems] = useState<IJePem[]>([]);
   const [data, setData] = useState<IDapem>({
+    id: "",
     tanggal: new Date(),
     nik: "",
     namaPemohon: "",
@@ -20,9 +35,22 @@ export const UI = () => {
     tenor: 0,
     plafon: 0,
     angsuran: 0,
+    byAdmin: 0,
+    byTabungan: 0,
+    byMaterai: 0,
+    byTatalaksana: 0,
     blokir: 0,
+    penalty: 0,
     pelunasan: 0,
+    margin: 0,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    isActive: true,
+    proPemId: "",
+    jePemId: "",
+    userId: user ? user.id : "",
     ProPem: {
+      id: "",
       name: "",
       unit: 0,
       maxTenor: 0,
@@ -30,38 +58,25 @@ export const UI = () => {
       maxAngsuran: 0,
       byAdmin: 0,
       byTabungan: 0,
+      byMaterai: 0,
+      byTatalaksana: 0,
       margin: 0,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      isActive: true,
     },
-    Jepem: {
+    JePem: {
+      id: "",
       name: "",
       penalty: 0,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      isActive: true,
     },
   });
-  const [temp, setTemp] = useState<ITemp>({
-    admin: 0,
-    tabungan: 0,
-    blokirAngsuran: 0,
-    totalPot: 0,
-    penalty: 0,
-  });
+  const [totalPot, setTotalPot] = useState<number>(0);
 
   // Lifecycle Dapem
-  useEffect(() => {
-    const admin = data.plafon * (data.ProPem.byAdmin / 100);
-    const tabungan = data.plafon * (data.ProPem.byTabungan / 100);
-    const blokir = data.angsuran * data.blokir;
-
-    setTemp((prev) => ({
-      ...prev,
-      admin: data.plafon * (data.ProPem.byAdmin / 100),
-      tabungan: data.plafon * (data.ProPem.byTabungan / 100),
-      blokirAngsuran: data.angsuran * data.blokir,
-      totalPot: admin + tabungan + blokir,
-      penalty: data.plafon * (data.Jepem.penalty / 100),
-    }));
-  }, [data]);
-
-  // Lifecycle Installment (Angsuran)
   useEffect(() => {
     const { angsuran } = AngsuranFlat(
       data.plafon,
@@ -69,12 +84,24 @@ export const UI = () => {
       data.ProPem.margin,
       data.ProPem.unit
     );
+    const admin = data.plafon * (data.ProPem.byAdmin / 100);
+    const tabungan = data.plafon * (data.ProPem.byTabungan / 100);
+    const blokir = data.angsuran * data.blokir;
 
     setData((prev) => ({
       ...prev,
       angsuran: angsuran || 0,
+      byAdmin: data.plafon * (data.ProPem.byAdmin / 100),
+      byTabungan: data.plafon * (data.ProPem.byTabungan / 100),
+      byTatalaksana: data.plafon * (data.ProPem.byTatalaksana / 100),
+      byMaterai: data.plafon * (data.ProPem.byMaterai / 100),
+      penalty: data.plafon * (data.JePem.penalty / 100),
+      margin: data.ProPem.margin,
     }));
-  }, [data.plafon, data.tenor, data.ProPem.margin, data.ProPem.unit]);
+    setTotalPot(
+      admin + tabungan + blokir + data.byTatalaksana + data.byMaterai
+    );
+  }, [data.plafon, data.tenor, data.ProPem, data.blokir, data.JePem]);
 
   // Lifecycle Tenor Plafond
   useEffect(() => {
@@ -84,7 +111,21 @@ export const UI = () => {
     if (data.plafon > data.ProPem.maxPlafon) {
       setData((prev) => ({ ...prev, plafon: 0 }));
     }
-  }, [data.ProPem.maxPlafon, data.ProPem.maxPlafon]);
+  }, [data.ProPem.maxPlafon, data.ProPem.maxTenor]);
+
+  // Lifecycle Products Option
+  useEffect(() => {
+    const daily = propem.filter((p) => p.unit === 1);
+    const weekly = propem.filter((p) => p.unit === 7);
+    const monthly = propem.filter((p) => p.unit === 30);
+    setProductsOption([
+      { label: "Daily", options: daily },
+      { label: "Weekly", options: weekly },
+      { label: "Monthly", options: monthly },
+    ]);
+    setProducts([...daily, ...weekly, ...monthly]);
+    setJepems(jePem);
+  }, []);
 
   return (
     <div className="flex flex-col sm:flex-row justify-center items-center sm:items-start p-1 gap-2">
@@ -152,14 +193,24 @@ export const UI = () => {
             <Select
               className="w-full"
               placeholder="Select Product"
-              options={propem.map((p, i) => ({
-                label: p.name,
-                value: p.name,
-              }))}
+              options={
+                productsOption &&
+                productsOption.map((p) => ({
+                  label: p.label,
+                  options: p.options.map((po) => ({
+                    label: po.name,
+                    value: po.id,
+                  })),
+                }))
+              }
               onChange={(e) => {
-                const filter = propem.filter((p) => p.name === e);
+                const filter = products.filter((p) => p.id === e);
                 if (filter.length !== 0) {
-                  return setData((prev) => ({ ...prev, ProPem: filter[0] }));
+                  return setData((prev) => ({
+                    ...prev,
+                    ProPem: filter[0],
+                    proPemId: filter[0].id,
+                  }));
                 }
                 alert("Product not found");
               }}
@@ -169,14 +220,18 @@ export const UI = () => {
             <p>Jenis Pembiayaan</p>
             <Select
               className="w-full"
-              options={jepem.map((j) => ({ label: j.name, value: j.name }))}
+              options={jepems.map((j) => ({ label: j.name, value: j.id }))}
               placeholder="Select Jenis"
               onChange={(e) => {
-                const filter = jepem.filter((j) => j.name === e);
+                const filter = jepems.filter((j) => j.id === e);
                 if (filter.length !== 0) {
-                  return setData((prev) => ({ ...prev, Jepem: filter[0] }));
+                  return setData((prev) => ({
+                    ...prev,
+                    JePem: filter[0],
+                    jePemId: filter[0].id,
+                  }));
                 }
-                alert("Product not found");
+                alert("Jenis Pembiayaan not found");
               }}
             />
           </div>
@@ -291,6 +346,7 @@ export const UI = () => {
                   if (value < 0) {
                     return setData((prev) => ({
                       ...prev,
+                      byAdmin: 0,
                       ProPem: { ...prev.ProPem, byAdmin: 0 },
                     }));
                   }
@@ -306,17 +362,14 @@ export const UI = () => {
             </div>
             <Input
               placeholder="0"
-              value={IDRFormat(temp.admin)}
+              value={IDRFormat(data.byAdmin)}
               onChange={(e) => {
                 const value = parseInt(
                   e.target.value ? e.target.value.replace(/\D/g, "") : "0"
                 );
-                setTemp((prev) => ({
-                  ...prev,
-                  admin: value,
-                }));
                 setData((prev) => ({
                   ...prev,
+                  byAdmin: value,
                   ProPem: {
                     ...prev.ProPem,
                     byAdmin: (value / data.plafon) * 100,
@@ -341,6 +394,7 @@ export const UI = () => {
                   if (value < 0) {
                     return setData((prev) => ({
                       ...prev,
+                      byTabungan: 0,
                       ProPem: { ...prev.ProPem, byTabungan: 0 },
                     }));
                   }
@@ -356,17 +410,14 @@ export const UI = () => {
             </div>
             <Input
               placeholder="0"
-              value={IDRFormat(temp.tabungan)}
+              value={IDRFormat(data.byTabungan)}
               onChange={(e) => {
                 const value = parseInt(
                   e.target.value ? e.target.value.replace(/\D/g, "") : "0"
                 );
-                setTemp((prev) => ({
-                  ...prev,
-                  tabungan: value,
-                }));
                 setData((prev) => ({
                   ...prev,
+                  byTabungan: value,
                   ProPem: {
                     ...prev.ProPem,
                     byTabungan: (value / data.plafon) * 100,
@@ -376,6 +427,106 @@ export const UI = () => {
             />
           </div>
         </div>
+        {data.ProPem.unit === 30 && (
+          <div className="flex items-center border-b py-1">
+            <div className="flex-1">
+              <p>Tatalaksana</p>
+            </div>
+            <div className="flex-1 flex gap-2">
+              <div style={{ width: 100 }}>
+                <Input
+                  placeholder="0"
+                  type="number"
+                  value={data.ProPem.byTatalaksana}
+                  onChange={(e) => {
+                    const value = parseFloat(e.target.value || "0");
+                    if (value < 0) {
+                      return setData((prev) => ({
+                        ...prev,
+                        byTatalaksana: 0,
+                        ProPem: { ...prev.ProPem, byTatalaksana: 0 },
+                      }));
+                    }
+                    setData((prev) => ({
+                      ...prev,
+                      ProPem: {
+                        ...prev.ProPem,
+                        byTatalaksana: parseFloat(e.target.value || "0"),
+                      },
+                    }));
+                  }}
+                />
+              </div>
+              <Input
+                placeholder="0"
+                value={IDRFormat(data.byTatalaksana)}
+                onChange={(e) => {
+                  const value = parseInt(
+                    e.target.value ? e.target.value.replace(/\D/g, "") : "0"
+                  );
+                  setData((prev) => ({
+                    ...prev,
+                    byTatalaksana: value,
+                    ProPem: {
+                      ...prev.ProPem,
+                      byTatalaksana: (value / data.plafon) * 100,
+                    },
+                  }));
+                }}
+              />
+            </div>
+          </div>
+        )}
+        {data.ProPem.unit === 30 && (
+          <div className="flex items-center border-b py-1">
+            <div className="flex-1">
+              <p>Materai</p>
+            </div>
+            <div className="flex-1 flex gap-2">
+              <div style={{ width: 100 }}>
+                <Input
+                  placeholder="0"
+                  type="number"
+                  value={data.ProPem.byMaterai}
+                  onChange={(e) => {
+                    const value = parseFloat(e.target.value || "0");
+                    if (value < 0) {
+                      return setData((prev) => ({
+                        ...prev,
+                        byMaterai: 0,
+                        ProPem: { ...prev.ProPem, byMaterai: 0 },
+                      }));
+                    }
+                    setData((prev) => ({
+                      ...prev,
+                      ProPem: {
+                        ...prev.ProPem,
+                        byMaterai: parseFloat(e.target.value || "0"),
+                      },
+                    }));
+                  }}
+                />
+              </div>
+              <Input
+                placeholder="0"
+                value={IDRFormat(data.byMaterai)}
+                onChange={(e) => {
+                  const value = parseInt(
+                    e.target.value ? e.target.value.replace(/\D/g, "") : "0"
+                  );
+                  setData((prev) => ({
+                    ...prev,
+                    byMaterai: value,
+                    ProPem: {
+                      ...prev.ProPem,
+                      byMaterai: (value / data.plafon) * 100,
+                    },
+                  }));
+                }}
+              />
+            </div>
+          </div>
+        )}
         <div className="flex items-center border-b py-1">
           <div className="flex-1">
             <p>Blokir Angsuran</p>
@@ -404,7 +555,7 @@ export const UI = () => {
             <Input
               placeholder="0"
               disabled
-              value={IDRFormat(temp.blokirAngsuran)}
+              value={IDRFormat(data.blokir * data.angsuran)}
             />
           </div>
         </div>
@@ -417,7 +568,7 @@ export const UI = () => {
               placeholder="0"
               disabled
               value={IDRFormat(
-                temp.admin + temp.tabungan + temp.blokirAngsuran
+                data.byAdmin + data.byTabungan + data.blokir * data.angsuran
               )}
             />
           </div>
@@ -430,13 +581,11 @@ export const UI = () => {
             <Input
               placeholder="0"
               disabled
-              value={IDRFormat(
-                data.plafon - (temp.admin + temp.tabungan + temp.blokirAngsuran)
-              )}
+              value={IDRFormat(data.plafon - totalPot)}
             />
           </div>
         </div>
-        {data.Jepem.name === "Rehab" && (
+        {data.JePem.name === "Rehab" && (
           <div className="flex items-center border-b py-1 text-red-500">
             <div className="flex-1">
               <p>Penalty Pelunasan</p>
@@ -446,19 +595,19 @@ export const UI = () => {
                 <Input
                   placeholder="0"
                   type="number"
-                  value={data.Jepem.penalty}
+                  value={data.JePem.penalty}
                   onChange={(e) => {
                     const value = parseFloat(e.target.value || "0");
                     if (value < 0) {
                       return setData((prev) => ({
                         ...prev,
-                        Jepem: { ...prev.Jepem, penalty: 0 },
+                        JePem: { ...prev.JePem, penalty: 0 },
                       }));
                     }
                     setData((prev) => ({
                       ...prev,
-                      Jepem: {
-                        ...prev.Jepem,
+                      JePem: {
+                        ...prev.JePem,
                         penalty: parseFloat(e.target.value || "0"),
                       },
                     }));
@@ -467,19 +616,16 @@ export const UI = () => {
               </div>
               <Input
                 placeholder="0"
-                value={IDRFormat(temp.penalty)}
+                value={IDRFormat(data.penalty)}
                 onChange={(e) => {
                   const value = parseInt(
                     e.target.value ? e.target.value.replace(/\D/g, "") : "0"
                   );
-                  setTemp((prev) => ({
-                    ...prev,
-                    penalty: value,
-                  }));
                   setData((prev) => ({
                     ...prev,
-                    Jepem: {
-                      ...prev.Jepem,
+                    penalty: value,
+                    JePem: {
+                      ...prev.JePem,
                       penalty: (value / data.plafon) * 100,
                     },
                   }));
@@ -488,7 +634,7 @@ export const UI = () => {
             </div>
           </div>
         )}
-        {data.Jepem.name === "Rehab" && (
+        {data.JePem.name === "Rehab" && (
           <div className="flex items-center border-b py-1 text-red-500">
             <div className="flex-1">
               <p>Pelunasan</p>
@@ -510,7 +656,7 @@ export const UI = () => {
             </div>
           </div>
         )}
-        {data.Jepem.name === "Rehab" && (
+        {data.JePem.name === "Rehab" && (
           <div className="flex items-center border-b py-1 text-red-500">
             <div className="flex-1">
               <p>Total Pelunasan</p>
@@ -519,7 +665,7 @@ export const UI = () => {
               <Input
                 placeholder="0"
                 disabled
-                value={IDRFormat(data.pelunasan + temp.penalty)}
+                value={IDRFormat(data.pelunasan + data.penalty)}
               />
             </div>
           </div>
@@ -533,12 +679,12 @@ export const UI = () => {
               placeholder="0"
               disabled
               value={IDRFormat(
-                data.plafon - (temp.totalPot + temp.penalty + data.pelunasan)
+                data.plafon - (totalPot + data.penalty + data.pelunasan)
               )}
             />
           </div>
         </div>
-        <div className="flex items-center border-b py-1 ">
+        {/* <div className="flex items-center border-b py-1 ">
           <div className="flex-1">
             <p>Tanggal Mulai Angsuran</p>
           </div>
@@ -575,18 +721,18 @@ export const UI = () => {
               }
             />
           </div>
-        </div>
+        </div> */}
         <div className="text-xs text-red-500 italic my-2">
           {error.status && error.msg}
         </div>
         <div className="flex gap-2 justify-end mt-3">
           <Button
             danger
-            onClick={() => handleReset({ setData, setTemp, setError })}
+            onClick={() => handleReset({ setData, setTotalPot, setError })}
           >
             Reset
           </Button>
-          <SimulationModal setError={setError} data={data} temp={temp} />
+          <SimulationModal user={user} data={data} potongan={totalPot} />
         </div>
       </div>
     </div>
@@ -595,12 +741,12 @@ export const UI = () => {
 
 const SimulationModal = ({
   data,
-  temp,
-  setError,
+  potongan,
+  user,
 }: {
   data: IDapem;
-  temp: ITemp;
-  setError: Function;
+  potongan: number;
+  user: IUser | undefined;
 }) => {
   const [open, setOpen] = useState(false);
 
@@ -611,7 +757,7 @@ const SimulationModal = ({
         onClick={() => {
           setOpen(true);
         }}
-        disabled={!data.ProPem.name || !data.Jepem.name}
+        disabled={!data.ProPem.name || !data.JePem.name}
       >
         Cek Simulasi
       </Button>
@@ -627,9 +773,6 @@ const SimulationModal = ({
           <Button key={"close"} danger onClick={() => setOpen(false)}>
             Tutup
           </Button>,
-          <Button key={"save"} type="primary">
-            Simpan
-          </Button>,
         ]}
         title={
           <div className="flex items-center font-bold gap-2">
@@ -640,49 +783,52 @@ const SimulationModal = ({
       >
         <div className="flex flex-col sm:flex-row gap-5">
           <div className="flex-1">
-            <div className="flex justify-between border-b my-2">
+            <div className="bg-green-500 text-gray-50 p-2 text-center rounded">
+              <p>Data Pemohon</p>
+            </div>
+            <div className="flex justify-between border-b my-2 gap-2">
               <p>Tanggal Simulasi</p>
               <p className="text-right">
                 {moment(data.tanggal).format("DD/MM/YYYY")}
               </p>
             </div>
-            <div className="flex justify-between border-b my-2">
+            <div className="flex justify-between border-b my-2 gap-2">
               <p>Nomor NIK</p>
               <p className="text-right">{data.nik}</p>
             </div>
-            <div className="flex justify-between border-b my-2">
+            <div className="flex justify-between border-b my-2 gap-2">
               <p>Nama Pemohon</p>
               <p className="text-right">{data.namaPemohon}</p>
             </div>
-            <div className="flex justify-between border-b my-2">
+            <div className="flex justify-between border-b my-2 gap-2">
               <p>Alamat</p>
-              <p className="text-right">{data.alamat}</p>
+              <p className="text-right ">{data.alamat}</p>
             </div>
-            <div className="flex justify-between border-b my-2">
+            <div className="flex justify-between border-b my-2 gap-2">
               <p>Gaji Bersih</p>
               <p className="text-right">{IDRFormat(data.gajiBersih)}</p>
             </div>
-            <div className="flex justify-between border-b my-2">
+            <div className="flex justify-between border-b my-2 gap-2">
               <p>Produk Pembiayaan</p>
               <p className="text-right">{data.ProPem.name}</p>
             </div>
-            <div className="flex justify-between border-b my-2">
+            <div className="flex justify-between border-b my-2 gap-2">
               <p>Jenis Pembiayaan</p>
-              <p className="text-right">{data.Jepem.name}</p>
+              <p className="text-right">{data.JePem.name}</p>
             </div>
-            <div className="flex justify-between border-b my-2">
+            <div className="flex justify-between border-b my-2 gap-2">
               <p>Tenor</p>
               <p className="text-right">{data.tenor}</p>
             </div>
-            <div className="flex justify-between border-b my-2">
+            <div className="flex justify-between border-b my-2 gap-2 text-green-500 font-bold">
               <p>Plafon</p>
               <p className="text-right">{IDRFormat(data.plafon)}</p>
             </div>
-            <div className="flex justify-between border-b my-2">
+            <div className="flex justify-between border-b my-2 gap-2">
               <p>Angsuran</p>
               <p className="text-right">{IDRFormat(data.angsuran)}</p>
             </div>
-            <div className="flex justify-between border-b my-2">
+            <div className="flex justify-between border-b my-2 gap-2">
               <p>Sisa Gaji</p>
               <p className="text-right">
                 {IDRFormat(data.gajiBersih - data.angsuran)}
@@ -693,15 +839,27 @@ const SimulationModal = ({
             <div className="bg-red-500 text-gray-50 p-2 text-center rounded">
               <p>Keterangan Biaya/Potongan</p>
             </div>
-            <div className="flex justify-between border-b my-2">
+            <div className="flex justify-between border-b my-2 gap-2">
               <p>Biaya Administrasi</p>
-              <p className="text-right">{IDRFormat(temp.admin)}</p>
+              <p className="text-right">{IDRFormat(data.byAdmin)}</p>
             </div>
-            <div className="flex justify-between border-b my-2">
+            <div className="flex justify-between border-b my-2 gap-2">
               <p>Biaya Tabungan</p>
-              <p className="text-right">{IDRFormat(temp.tabungan)}</p>
+              <p className="text-right">{IDRFormat(data.byTabungan)}</p>
             </div>
-            <div className="flex justify-between border-b my-2">
+            {data.ProPem.unit === 30 && (
+              <div className="flex justify-between border-b my-2 gap-2">
+                <p>Biaya Materai</p>
+                <p className="text-right">{IDRFormat(data.byMaterai)}</p>
+              </div>
+            )}
+            {data.ProPem.unit === 30 && (
+              <div className="flex justify-between border-b my-2 gap-2">
+                <p>Biaya Tatalaksana</p>
+                <p className="text-right">{IDRFormat(data.byTatalaksana)}</p>
+              </div>
+            )}
+            <div className="flex justify-between border-b my-2 gap-2">
               <div className="flex-1">
                 <p>Blokir Angsuran</p>
               </div>
@@ -712,35 +870,35 @@ const SimulationModal = ({
                   </p>
                 </div>
                 <div className="flex-1">
-                  <p className="text-right">{IDRFormat(temp.blokirAngsuran)}</p>
+                  <p className="text-right">
+                    {IDRFormat(data.blokir * data.angsuran)}
+                  </p>
                 </div>
               </div>
             </div>
-            <div className="flex justify-between border-b my-2 text-red-500">
+            <div className="flex justify-between border-b my-2 gap-2 text-red-500">
               <p>Total Potongan</p>
-              <p className="text-right">{IDRFormat(temp.totalPot)}</p>
+              <p className="text-right">{IDRFormat(potongan)}</p>
             </div>
-            <div className="flex justify-between border-b my-2">
+            <div className="flex justify-between border-b my-2 gap-2">
               <p>Terima Kotor</p>
-              <p className="text-right">
-                {IDRFormat(data.plafon - temp.totalPot)}
-              </p>
+              <p className="text-right">{IDRFormat(data.plafon - potongan)}</p>
             </div>
-            <div className="flex justify-between border-b my-2 text-red-500">
+            <div className="flex justify-between border-b my-2 gap-2 text-red-500">
               <p>Pelunasan</p>
               <p className="text-right">
-                {IDRFormat(data.pelunasan + temp.penalty)}
+                {IDRFormat(data.pelunasan + data.penalty)}
               </p>
             </div>
-            <div className="flex justify-between border-b my-2">
+            <div className="flex justify-between border-b my-2 gap-2">
               <p>Terima Bersih</p>
               <p className="text-right">
                 {IDRFormat(
-                  data.plafon - (temp.totalPot + data.pelunasan + temp.penalty)
+                  data.plafon - (potongan + data.pelunasan + data.penalty)
                 )}
               </p>
             </div>
-            <div className="flex justify-between border-b my-2">
+            <div className="flex justify-between border-b my-2 gap-2">
               <p>Tanggal Mulai Angsuran</p>
               <p className="text-right">
                 {
@@ -753,7 +911,7 @@ const SimulationModal = ({
                 }
               </p>
             </div>
-            <div className="flex justify-between border-b my-2">
+            <div className="flex justify-between border-b my-2 gap-2">
               <p>Tanggal Lunas</p>
               <p className="text-right">
                 {
@@ -766,9 +924,11 @@ const SimulationModal = ({
                 }
               </p>
             </div>
-            <div className="flex justify-between border-b my-2">
+            <div className="flex justify-between border-b my-2 gap-2">
               <p>User</p>
-              <p className="text-right">Syihabudin Tsani</p>
+              <p className="text-right">
+                {user && user.namaLengkap.toUpperCase()}
+              </p>
             </div>
           </div>
         </div>
@@ -777,62 +937,17 @@ const SimulationModal = ({
   );
 };
 
-const propem: IProPem[] = [
-  {
-    name: "Harian",
-    maxTenor: 30,
-    maxPlafon: 2000000,
-    maxAngsuran: 80,
-    byAdmin: 5,
-    byTabungan: 5,
-    unit: 1,
-    margin: 20,
-  },
-  {
-    name: "Mingguan",
-    maxTenor: 10,
-    maxPlafon: 10000000,
-    maxAngsuran: 80,
-    byAdmin: 5,
-    byTabungan: 5,
-    unit: 7,
-    margin: 20,
-  },
-  {
-    name: "Bulanan",
-    maxTenor: 60,
-    maxPlafon: 50000000,
-    maxAngsuran: 80,
-    byAdmin: 5,
-    byTabungan: 5,
-    unit: 30,
-    margin: 20,
-  },
-];
-
-const jepem: IJepem[] = [
-  { name: "Baru", penalty: 0 },
-  { name: "Rehab", penalty: 2 },
-];
-
-interface ITemp {
-  admin: number;
-  tabungan: number;
-  blokirAngsuran: number;
-  totalPot: number;
-  penalty: number;
-}
-
 const handleReset = ({
   setData,
-  setTemp,
+  setTotalPot,
   setError,
 }: {
   setData: Function;
-  setTemp: Function;
+  setTotalPot: Function;
   setError: Function;
 }) => {
   setData({
+    id: "",
     tanggal: new Date(),
     nik: "",
     namaPemohon: "",
@@ -841,9 +956,22 @@ const handleReset = ({
     tenor: 0,
     plafon: 0,
     angsuran: 0,
+    byAdmin: 0,
+    byTabungan: 0,
+    byMaterai: 0,
+    byTatalaksana: 0,
     blokir: 0,
+    penalty: 0,
     pelunasan: 0,
+    margin: 0,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    isActive: true,
+    proPemId: "",
+    jePemId: "",
+    userId: "",
     ProPem: {
+      id: "",
       name: "",
       unit: 0,
       maxTenor: 0,
@@ -851,22 +979,96 @@ const handleReset = ({
       maxAngsuran: 0,
       byAdmin: 0,
       byTabungan: 0,
+      byMaterai: 0,
+      byTatalaksana: 0,
       margin: 0,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      isActive: true,
     },
-    Jepem: {
+    JePem: {
+      id: "",
       name: "",
       penalty: 0,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      isActive: true,
     },
   });
   setError({
     status: false,
     msg: "",
   });
-  setTemp({
-    admin: 0,
-    tabungan: 0,
-    blokirAngsuran: 0,
-    totalPot: 0,
-    penalty: 0,
-  });
+  setTotalPot(0);
 };
+
+const propem: IProPem[] = [
+  {
+    id: "harian",
+    name: "Harian",
+    maxTenor: 30,
+    maxPlafon: 2000000,
+    maxAngsuran: 80,
+    byAdmin: 5,
+    byTabungan: 5,
+    byMaterai: 0,
+    byTatalaksana: 0,
+    unit: 1,
+    margin: 20,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    isActive: true,
+  },
+
+  {
+    id: "mingguan",
+    name: "Mingguan",
+    maxTenor: 10,
+    maxPlafon: 10000000,
+    maxAngsuran: 80,
+    byAdmin: 5,
+    byTabungan: 5,
+    byMaterai: 0,
+    byTatalaksana: 0,
+    unit: 7,
+    margin: 20,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    isActive: true,
+  },
+  {
+    id: "bulanan",
+    name: "Bulanan",
+    maxTenor: 60,
+    maxPlafon: 50000000,
+    maxAngsuran: 80,
+    byAdmin: 5,
+    byTabungan: 5,
+    byMaterai: 1,
+    byTatalaksana: 2,
+    unit: 30,
+    margin: 20,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    isActive: true,
+  },
+];
+
+const jePem: IJePem[] = [
+  {
+    id: "1",
+    name: "Baru",
+    penalty: 0,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    isActive: true,
+  },
+  {
+    id: "2",
+    name: "Rehab",
+    penalty: 2,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    isActive: true,
+  },
+];
