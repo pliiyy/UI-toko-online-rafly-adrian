@@ -5,7 +5,6 @@ import AntdConfig from "../components/AntdConfig";
 import { App } from "antd";
 import { AnonymousLayout } from "@/components/layouts";
 import { Cart } from "@/components/layouts";
-import "animate.css/animate.compat.css";
 import AllProvider from "@/components/contexts";
 
 const jetBrains = JetBrains_Mono({

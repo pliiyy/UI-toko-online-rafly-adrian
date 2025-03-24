@@ -14,3 +14,5 @@ Struk Belanja, untuk menampilkan total harga yang harus dibayar, mirip struk dar
 
 2.login user dan dashboard
 Login untuk Pelanggan, Kasir, atau Admin System. Jika pelanggan lempar ke tampil produk, jika login kasir, ia dapat akses dashboard keuangan, login admin system dapat akses dashboard system
+
+GITHUB KEY=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

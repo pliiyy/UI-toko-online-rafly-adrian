@@ -5,7 +5,6 @@ import { ProductCard } from "@/components/layouts";
 import { LoadingOutlined } from "@ant-design/icons";
 import { Image, Input, Pagination, Select, Spin } from "antd";
 import { useEffect, useState } from "react";
-import ScrollAnimation from "react-animate-on-scroll";
 
 export default function Page() {
   const [loading, setLoading] = useState(false);
@@ -82,14 +81,8 @@ export default function Page() {
         >
           <div className="flex items-center flex-wrap-reverse gap-5 py-16 px-5 sm:p-16 relative h-[90%]">
             <div className="w-[100vw] sm:flex-1 text-center font-bold text-4xl text-gray-100">
-              <ScrollAnimation
-                animateIn="flipInY"
-                animateOut="flipOutY"
-                initiallyVisible={true}
-              >
-                <p className="sm:mb-5">Example Marketplace</p>
-                <p>Rafly Adrian</p>
-              </ScrollAnimation>
+              <p className="sm:mb-5">Example Marketplace</p>
+              <p>Rafly Adrian</p>
             </div>
             <div className="flex-1 flex justify-center relative">
               <Image
@@ -128,17 +121,11 @@ export default function Page() {
       </div>
       <Spin spinning={loading} indicator={<LoadingOutlined />}>
         <div className="mt-32 my-20 p-4">
-          <ScrollAnimation
-            animateIn="flipInY"
-            animateOut="flipOutY"
-            delay={100}
-          >
-            <div className="border-b-2 w-[80%] sm:w-[50%] mx-auto border-blue-500 p-2 my-5">
-              <p className="text-2xl font-bold text-center drop-shadow-xl">
-                Our Products
-              </p>
-            </div>
-          </ScrollAnimation>
+          <div className="border-b-2 w-[80%] sm:w-[50%] mx-auto border-blue-500 p-2 my-5">
+            <p className="text-2xl font-bold text-center drop-shadow-xl">
+              Our Products
+            </p>
+          </div>
           <div className="flex gap-2 justify-end">
             <div>
               <Select
