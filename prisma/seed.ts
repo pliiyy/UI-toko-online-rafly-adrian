@@ -1,8 +1,25 @@
 // import { PrismaClient } from "@prisma/client";
-import { PrismaClient } from "@prisma/client";
+import { ERole, PrismaClient } from "@prisma/client";
+import bcrypt from "bcrypt";
 const prisma = new PrismaClient();
 
 async function main() {
+  const pass = await bcrypt.hash("admin123", 10);
+  await prisma.user.create({
+    data: {
+      fullname: "User Admin",
+      username: "admin",
+      email: "admin@gmail.com",
+      password: pass,
+      phone: "081122223333",
+      address: "My Location",
+      role: ERole.ADMIN,
+      isActive: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      image: "favicon.ico",
+    },
+  });
   console.log("Seeding succeesfully...");
 }
 main()

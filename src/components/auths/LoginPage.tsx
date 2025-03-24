@@ -1,14 +1,15 @@
 "use client";
 import {
+  GoogleCircleFilled,
   LoginOutlined,
   SecurityScanOutlined,
   UserOutlined,
-  WhatsAppOutlined,
 } from "@ant-design/icons";
 import { Button, Form, Image, Input, Modal } from "antd";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { ModalMessageProps } from "../utils/ServerUtils";
+import Link from "next/link";
+import { ModalMessageProps } from "../IInterfaces";
 
 export default function LoginPage() {
   const [loading, setLoading] = useState(false);
@@ -37,15 +38,14 @@ export default function LoginPage() {
             show: true,
             desc: (
               <div>
-                <p className="text-red-500">Wrong username or password!.</p>
+                <p className="text-red-500">
+                  Username, Email atau Password Salah!
+                </p>
                 <div className="text-xs text-blue-500 italic my-1">
                   <p>
-                    If youre forgot username or password, you can contact our
-                    Administrator KOPJAS FAS by Whatsapp :
+                    Username , Email atau password salah. atau mungkin anda
+                    belum melakukan pendaftaran di platform ini!
                   </p>
-                  <div className="my-2 flex gap-3">
-                    <WhatsAppOutlined /> <span>0881 - 0221 - 57439</span>
-                  </div>
                 </div>
               </div>
             ),
@@ -53,7 +53,11 @@ export default function LoginPage() {
           return;
         }
         setTimeout(() => {
-          router.push("/auths/");
+          if (res.data.role === "PELANGGAN") {
+            router.push("/products");
+          } else {
+            router.push("/users");
+          }
         }, 100);
         return;
       })
@@ -66,7 +70,7 @@ export default function LoginPage() {
           show: true,
           desc: (
             <div className="text-red-500">
-              <p>Sorry we have some problem at this time. Check again later!</p>
+              <p>Maaf telah terjadi kesalahan. Mohon coba lagi nanti!</p>
             </div>
           ),
         });
@@ -81,7 +85,7 @@ export default function LoginPage() {
       </div>
       <div className="flex-1 flex justify-center">
         <Form
-          className="w-[95%] sm:w-[400px] bg-gray-50 rounded shadow-md p-7"
+          className="w-[95%] sm:w-[400px] bg-gray-50 rounded shadow-md px-7 pt-4"
           layout="vertical"
           onFinish={onSubmit}
           disabled={loading}
@@ -89,7 +93,7 @@ export default function LoginPage() {
           <div className="flex justify-center ">
             <div className="w-[40%] sm:w-[20%]">
               <Image
-                src={process.env.NEXT_PUBLIC_APP_ICON || "/logo.png"}
+                src={process.env.NEXT_PUBLIC_APP_ICON || "/favicon.ico"}
                 width={"100%"}
                 alt="Company Logo"
               />
@@ -104,7 +108,7 @@ export default function LoginPage() {
                 whitespace: false,
                 message: "Please input username field",
               },
-              { min: 3, message: "min 3 character" },
+              { min: 5, message: "min 5 character" },
             ]}
           >
             <Input prefix={<UserOutlined />} />
@@ -118,7 +122,7 @@ export default function LoginPage() {
                 whitespace: false,
                 message: "Please input password field",
               },
-              { min: 3, message: "min 3 character" },
+              { min: 5, message: "min 5 character" },
             ]}
           >
             <Input.Password prefix={<SecurityScanOutlined />} />
@@ -134,6 +138,26 @@ export default function LoginPage() {
             >
               Submit
             </Button>
+            <div className="my-5 text-center">
+              <p>Atau</p>
+              <Button
+                icon={<GoogleCircleFilled />}
+                block
+                type="primary"
+                htmlType="button"
+                disabled
+              >
+                Sign in with Google
+              </Button>
+            </div>
+            <div className="text-xs">
+              <p>
+                Belum punya akun?{" "}
+                <Link href={"/sign-up"} className="italic text-blue-500">
+                  Register
+                </Link>
+              </p>
+            </div>
           </div>
         </Form>
       </div>

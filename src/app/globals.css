@@ -20,9 +20,6 @@ body {
   font-family: var(--jetBrains-mono);
   overflow-x: hidden;
 }
-.ant-menu {
-  background: none;
-}
 /* #image-brand {
   background-image: url("/brand.png");
 } */

@@ -3,110 +3,60 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-enum EGender {
-  Laki_laki
-  Perempuan
-}
-
 enum ERole {
-  DEVELOPER
+  KASIR
   ADMIN
-  MARKETING
+  PELANGGAN
 }
 
 model User {
-  id           String  @id @default(uuid())
-  namaLengkap  String
-  username     String  @unique
-  email        String  @unique
-  phone        String  @unique
-  password     String
-  nip          String
-  alamat       String
-  kelurahan    String
-  kecamatan    String
-  kota         String
-  provinsi     String
-  jenisKelamin EGender
-  role         ERole
+  id       String  @id @default(uuid())
+  fullname String
+  username String  @unique
+  email    String  @unique
+  phone    String  @unique
+  password String
+  address  String
+  role     ERole
+  image    String?
 
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now())
-
-  UserMenu UserMenu[]
-  Dapem    Dapem[]
+  isActive    Boolean       @default(true)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @default(now())
+  Transaction Transaction[]
 }
 
-model UserMenu {
-  id     String  @id @default(uuid())
-  access String
-  path   String
-  User   User?   @relation(fields: [userId], references: [id])
-  userId String?
+model Product {
+  id                String              @id @default(uuid())
+  title             String
+  price             Int
+  description       String
+  image             String
+  category          String
+  DetailTransaction DetailTransaction[]
 }
 
-model ProPem {
-  id            String @id @default(uuid())
-  name          String
-  maxTenor      Int
-  maxPlafon     Int
-  maxAngsuran   Float
-  byAdmin       Float
-  byTabungan    Float
-  byMaterai     Float
-  byTatalaksana Float
-  unit          Int
-  margin        Float
-
-  isActive  Boolean  @default(true)
+model Transaction {
+  id        String   @id @default(uuid())
   createdAt DateTime @default(now())
-  updatedAt DateTime @default(now())
-  Dapem     Dapem[]
+  status    Boolean
+
+  User              User                @relation(fields: [userId], references: [id])
+  userId            String
+  DetailTransaction DetailTransaction[]
 }
 
-model JePem {
-  id      String @id @default(uuid())
-  name    String
-  penalty Float
+model DetailTransaction {
+  id    String @id @default(uuid())
+  price Int
+  qty   Int
 
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now())
-  Dapem     Dapem[]
-}
-
-model Dapem {
-  id            String   @id @default(uuid())
-  tanggal       DateTime @default(now())
-  nik           String
-  namaPemohon   String
-  alamat        String
-  gajiBersih    Int
-  tenor         Int
-  plafon        Int
-  angsuran      Int
-  byAdmin       Float
-  byTabungan    Float
-  byMaterai     Int
-  byTatalaksana Int
-  blokir        Int
-  penalty       Float
-  pelunasan     Int
-  margin        Float
-
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now())
-
-  ProPem   ProPem @relation(fields: [proPemId], references: [id])
-  Jepem    JePem  @relation(fields: [jePemId], references: [id])
-  User     User   @relation(fields: [userId], references: [id])
-  proPemId String
-  jePemId  String
-  userId   String
+  Product       Product      @relation(fields: [productId], references: [id])
+  productId     String
+  Transaction   Transaction? @relation(fields: [transactionId], references: [id])
+  transactionId String?
 }

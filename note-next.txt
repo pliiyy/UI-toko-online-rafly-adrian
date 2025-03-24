@@ -1,11 +1,16 @@
-- Pengerjaan User Service Create
-- Pengerjaan API User & User Menu
+afrafly09@gmail.com
+
+Raflyaf19112005
+Raflyadrianf19112005
+
+[2] User Management for Admin System
+[3] Transaction and Display Transaction
+[4] Print transaction
+[5] Login with google
 
 
-- Pengerjaan Simulasi
-- Pengerjaan Pengajuan
-- Pengerjaan Proses Pengajuan
-- Pengerjaan Proses Transfer
-- Pengerjaan Laporan
-- Pengerjaan Keterangan SOP
-- Pengerjaan Laporan Keuangan
+6.Struk Belanja
+Struk Belanja, untuk menampilkan total harga yang harus dibayar, mirip struk dari toko dengan kertas thermal ukuran lebar 58mm, ukuran height unlimitted, buat minimal 3 item produk, dan tiap item produk dengan QTY lebih dari satu pcs.
+
+2.login user dan dashboard
+Login untuk Pelanggan, Kasir, atau Admin System. Jika pelanggan lempar ke tampil produk, jika login kasir, ia dapat akses dashboard keuangan, login admin system dapat akses dashboard system

@@ -1,44 +1,56 @@
+import { IUser } from "@/components/IInterfaces";
 import prisma from "@/components/Prisma";
 import { NextRequest, NextResponse } from "next/server";
-import { CreateUser, FindUser } from "@/components/services/UserService";
-import { CreateMenu } from "@/components/services/MenuService";
-import { IUser } from "@/components/IInterfaces";
-import { GetProps, getQueryUrl } from "@/components/utils/ServerUtils";
-
-export const GET = async (req: NextRequest) => {
-  const filter: GetProps = getQueryUrl(req);
-  const data = await FindUser(
-    filter.page,
-    filter.pageSize,
-    { namaLengkap: { contains: filter.name } },
-    { UserMenu: true },
-    { createdAt: "desc" }
-  );
-  return NextResponse.json({ msg: "Success", data }, { status: 200 });
-};
+import bcrypt from "bcrypt";
 
 export const POST = async (req: NextRequest) => {
+  const data: IUser = await req.json();
   try {
-    const data: IUser = await req.json();
-    const trx = await prisma.$transaction(async (tx) => {
-      const user = await CreateUser(data);
-      await CreateMenu(data.UserMenu, user.data ? user.data.id : "");
-      return user;
+    const find = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { username: data.username },
+          { email: data.email },
+          { phone: data.phone },
+        ],
+      },
     });
-    if (trx.code !== 201) {
-      return NextResponse.json({ msg: trx.msg }, { status: trx.code });
-    }
+
+    if (find)
+      return NextResponse.json(
+        {
+          msg: "Username / Email / Whatsapp telah digunakan. Mohon gunakan data yang lain!",
+          status: 400,
+        },
+        { status: 400 }
+      );
+    const pass = await bcrypt.hash(data.password, 10);
+    const result = await prisma.user.create({
+      data: {
+        fullname: data.fullname,
+        username: data.username,
+        email: data.email,
+        phone: data.phone,
+        password: pass,
+        address: data.address,
+        role: data.role,
+      },
+    });
     return NextResponse.json(
       {
-        msg: "Success",
-        code: trx.code,
+        data: result,
+        msg: "Selamat anda berhasil registrasi. Mohon login untuk melanjutkan",
+        status: 201,
       },
       { status: 201 }
     );
   } catch (err) {
     console.log(err);
     return NextResponse.json(
-      { msg: "Username, email atau no telepon sudah digunakan!", code: 500 },
+      {
+        msg: "Maaf telahterjadi kesalahan. Mohon coba lagi nanti!",
+        status: 500,
+      },
       { status: 500 }
     );
   }

@@ -1,4 +1,4 @@
-import { Dapem, JePem, ProPem, User, UserMenu } from "@prisma/client";
+import { DetailTransaction, Product, Transaction, User } from "@prisma/client";
 import React from "react";
 
 export interface IServiceResponse<T> {
@@ -7,31 +7,39 @@ export interface IServiceResponse<T> {
   data?: T;
 }
 
+export interface ModalMessageProps {
+  type: "error" | "success";
+  show: boolean;
+  title: string;
+  desc: string | React.ReactNode;
+}
+
 export interface ICardDashboard {
   name: string;
   icon: string | React.ReactNode;
   total: string;
 }
-interface IMenu {
+export interface IUser extends User {}
+
+export interface IProduct {
+  id: string;
   title: string;
-  label: string;
-  access: string[];
-  key: string;
-  checked: boolean;
-  icon?: string | React.ReactNode;
-  style?: object;
-}
-export interface IMenuList extends IMenu {
-  children?: IMenu[];
+  description: string;
+  category: string;
+  image: string;
+  price: number;
+  rating: { rate: number; count: number };
 }
 
-export interface IUser extends User {
-  UserMenu: UserMenu[];
+export interface ICart extends IProduct {
+  qty: number;
 }
 
-export interface IProPem extends ProPem {}
-export interface IJePem extends JePem {}
-export interface IDapem extends Dapem {
-  ProPem: IProPem;
-  JePem: IJePem;
+interface IDetailTransaction extends DetailTransaction {
+  Product: Product;
+}
+
+export interface ITransaction extends Transaction {
+  User: IUser;
+  DetailTransaction: IDetailTransaction[];
 }

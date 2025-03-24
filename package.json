@@ -1,5 +1,5 @@
 {
-  "name": "kopjasfas",
+  "name": "product-apps",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -17,6 +17,7 @@
     "@ant-design/v5-patch-for-react-19": "^1.0.3",
     "@prisma/client": "^6.3.0",
     "@react-pdf/renderer": "^4.3.0",
+    "animate.css": "^4.1.1",
     "antd": "^5.23.3",
     "bcrypt": "^5.1.1",
     "jose": "^5.9.6",
@@ -26,6 +27,7 @@
     "npm": "^11.1.0",
     "prisma": "^6.3.0",
     "react": "^19.0.0",
+    "react-animate-on-scroll": "^2.1.9",
     "react-dom": "^19.0.0",
     "react-pdf-tailwind": "^2.3.0"
   },

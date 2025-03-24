@@ -26,7 +26,7 @@ export const POST = async (req: NextRequest) => {
     }
     await signIn(user);
     return NextResponse.json(
-      { msg: "Authenticated", status: 200 },
+      { msg: "Authenticated", status: 200, data: user },
       { status: 200 }
     );
   } catch (err) {
@@ -68,7 +68,6 @@ export const GET = async (req: NextRequest) => {
     }
     const user = await prisma.user.findFirst({
       where: { id: result.user.id },
-      include: { UserMenu: true },
     });
     return NextResponse.json(
       { msg: "Success", status: 200, data: user },

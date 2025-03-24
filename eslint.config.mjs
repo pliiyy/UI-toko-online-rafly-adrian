@@ -18,6 +18,8 @@ const eslintConfig = [
       "@typescript-eslint/no-unsafe-function-type": "off",
       "react-hooks/exhaustive-deps": "off",
       "@typescript-eslint/no-empty-object-type": "off",
+      "jsx-a11y/alt-text": "off",
+      // "@typescript-eslint/no-unused-expressions": "off",
     },
   }),
 ];
