@@ -4,6 +4,7 @@ import { Button, Image, Menu, MenuProps } from "antd";
 import { DashboardFilled, MenuOutlined, UserOutlined } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
 import { useUser } from "../contexts/UserContext";
+import { myMenu } from "./Anonymous";
 
 export default function LayoutUser({
   children,
@@ -41,7 +42,12 @@ export default function LayoutUser({
         </div>
         <Menu
           mode="inline"
-          items={user && user.role === "ADMIN" ? menuAdmin : menuKasir}
+          items={
+            user &&
+            myMenu
+              .filter((m) => m.role.length === 0 || m.role.includes(user.role))
+              .map((m) => ({ key: m.key, label: m.label, icon: m.icon }))
+          }
           inlineCollapsed={inline}
           className="border-none"
           onClick={(e) => router.push(e.key)}
@@ -60,26 +66,3 @@ export default function LayoutUser({
     </div>
   );
 }
-
-export const menuAdmin: MenuProps["items"] = [
-  {
-    title: "Dashboard",
-    label: "Dashboard",
-    key: "/auths",
-    icon: <DashboardFilled />,
-  },
-  {
-    title: "User Data",
-    label: "User Data",
-    key: "/users/user",
-    icon: <UserOutlined />,
-  },
-];
-export const menuKasir: MenuProps["items"] = [
-  {
-    title: "Dashboard",
-    label: "Dashboard",
-    key: "/auths",
-    icon: <DashboardFilled />,
-  },
-];

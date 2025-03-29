@@ -15,3 +15,10 @@ Struk Belanja, untuk menampilkan total harga yang harus dibayar, mirip struk dar
 2.login user dan dashboard
 Login untuk Pelanggan, Kasir, atau Admin System. Jika pelanggan lempar ke tampil produk, jika login kasir, ia dapat akses dashboard keuangan, login admin system dapat akses dashboard system
 
+
+clientId = 312119913529-gpumrr91qvrh53338vvd04d5kmhjrpkm.apps.googleusercontent.com
+clientSecret = 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
+apiKey = AIzaSyCrIO9AYA4SCGzMRlm8kfpHaWZAQafMBQA
+
+"email profile https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile openid"
+"ya29.a0AeXRPp6V_ngDVaf6SUg983ba5C-_5CiX_1jHnlV9X9MIUiuSgsPMV4m8JmxA9MsVBX4Ov1AthQHOwiCJJreWPgeDv3czUVzH3U2dHEdnWJYQUQfo7R-xVSrhxYiX-Is2yjirXNk9c7oF4ttsvAW_3WrUIn2eIGKdmJqcACIiaCgYKAfsSARMSFQHGX2Mi8JucOOoBmAXtK94yW-PyrA0175"

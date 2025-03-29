@@ -20,6 +20,9 @@ export interface ICardDashboard {
   total: string;
 }
 export interface IUser extends User {}
+export interface IUserContext extends IUser {
+  getUser: Function;
+}
 
 export interface IProduct {
   id: string;

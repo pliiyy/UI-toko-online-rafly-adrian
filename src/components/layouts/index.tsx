@@ -38,3 +38,10 @@ export const UIProducts = dynamic(
     loading: () => <LoadingOutlined />,
   }
 );
+export const LoginWithGoogle = dynamic(
+  () => import("@/components/layouts/Utils").then((d) => d.LoginWithGoogle),
+  {
+    ssr: false,
+    loading: () => <LoadingOutlined />,
+  }
+);

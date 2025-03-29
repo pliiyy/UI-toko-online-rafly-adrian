@@ -26,7 +26,7 @@ async function main() {
       fullname: "User Kasir",
       username: "kasir",
       email: "kasir@gmail.com",
-      password: pass,
+      password: passKasir,
       phone: "082222222222",
       address: "My Location",
       role: ERole.KASIR,

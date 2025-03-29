@@ -1,19 +1,23 @@
 "use client";
+import { googleLogout } from "@react-oauth/google";
 
 import {
   CopyrightCircleOutlined,
   DashboardFilled,
+  DollarCircleFilled,
+  HomeOutlined,
   LoginOutlined,
   LogoutOutlined,
   MenuOutlined,
   ProductOutlined,
   UserAddOutlined,
+  UserOutlined,
 } from "@ant-design/icons";
 import { Button, Drawer, Image, Menu, Modal } from "antd";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useUser } from "../contexts/UserContext";
-import { ModalMessageProps } from "../IInterfaces";
+import { IUser, ModalMessageProps } from "../IInterfaces";
 
 export default function Anonymous({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
@@ -27,12 +31,13 @@ export default function Anonymous({ children }: { children: React.ReactNode }) {
     desc: "",
     type: "error",
   });
+  const [tempUser, setTempUser] = useState<IUser>();
 
   const handleLogout = async () => {
     setLoading(true);
     await fetch("/api/auth", { method: "PUT" })
       .then((res) => res.json())
-      .then((res: { msg: string; status: number }) => {
+      .then(async (res: { msg: string; status: number }) => {
         if (res.status !== 200) {
           setMessage({
             type: "error",
@@ -46,8 +51,10 @@ export default function Anonymous({ children }: { children: React.ReactNode }) {
           });
           return;
         }
-
+        googleLogout();
         setLogout(false);
+        await user.getUser();
+        setTempUser(undefined);
         setTimeout(() => {
           router.push("/");
         }, 100);
@@ -67,11 +74,13 @@ export default function Anonymous({ children }: { children: React.ReactNode }) {
       });
     setLoading(false);
   };
-
+  useEffect(() => {
+    setTempUser(user);
+  }, [user]);
   return (
     <div className="z-40">
       <div
-        className={`flex justify-between py-2 px-4 bg-gradient-to-br from-green-400 to-blue-400 opacity-50 items-center font-bold text-lg text-gray-50 fixed top-0 w-full z-40`}
+        className={`flex justify-between py-2 px-4 bg-gradient-to-br from-green-400 to-blue-400 opacity-50 items-center font-bold text-lg text-gray-50 fixed top-0 w-full z-10`}
       >
         <Image
           src={process.env.NEXT_PUBLIC_APP_ICON || "favicon.ico"}
@@ -95,7 +104,20 @@ export default function Anonymous({ children }: { children: React.ReactNode }) {
         onClose={() => setOpen(false)}
         width={window.innerWidth > 600 ? "30vw" : "80vw"}
       >
-        {!user || !user.id ? (
+        {tempUser && tempUser.id ? (
+          <div className="flex gap-4 items-center justify-around">
+            <div className="font-bold">{tempUser.fullname.toUpperCase()}</div>
+            <div>|</div>
+            <Button
+              danger
+              onClick={() => setLogout(true)}
+              icon={<LogoutOutlined />}
+              size="small"
+            >
+              Logout
+            </Button>
+          </div>
+        ) : (
           <div className="flex gap-4 items-center border-b p-2">
             <Button
               icon={<LoginOutlined />}
@@ -116,38 +138,26 @@ export default function Anonymous({ children }: { children: React.ReactNode }) {
               Register
             </Button>
           </div>
-        ) : (
-          <div className="flex gap-4 items-center justify-around">
-            <div className="font-bold">
-              {user && user.fullname.toUpperCase()}
-            </div>
-            <div>|</div>
-            <Button
-              danger
-              onClick={() => setLogout(true)}
-              icon={<LogoutOutlined />}
-              size="small"
-            >
-              Logout
-            </Button>
-          </div>
         )}
+        {/* {!tempUser?.id ? (
+          
+        ) : (
+          
+        )} */}
         <div className="my-3">
           <Menu
-            items={[
-              {
-                title: "Home",
-                label: "Home",
-                icon: <DashboardFilled />,
-                key: "/",
-              },
-              {
-                title: "Products",
-                label: "Products",
-                icon: <ProductOutlined />,
-                key: "/products",
-              },
-            ]}
+            items={
+              tempUser && tempUser.id
+                ? myMenu
+                    .filter(
+                      (m) =>
+                        m.role.length === 0 || m.role.includes(tempUser.role)
+                    )
+                    .map((m) => ({ key: m.key, label: m.label, icon: m.icon }))
+                : myMenu
+                    .filter((m) => m.role.length === 0)
+                    .map((m) => ({ key: m.key, label: m.label, icon: m.icon }))
+            }
             onClick={(e) => router.push(e.key)}
           />
         </div>
@@ -198,3 +208,31 @@ export default function Anonymous({ children }: { children: React.ReactNode }) {
     </div>
   );
 }
+
+export const myMenu = [
+  { label: "Home", key: "/", icon: <HomeOutlined />, role: [] },
+  {
+    label: "Product",
+    key: "/products",
+    icon: <ProductOutlined />,
+    role: [],
+  },
+  {
+    label: "Dashboard",
+    key: "/users",
+    icon: <DashboardFilled />,
+    role: ["ADMIN", "KASIR"],
+  },
+  {
+    label: "Report Transaction",
+    key: "/users/report",
+    icon: <DollarCircleFilled />,
+    role: ["ADMIN", "KASIR"],
+  },
+  {
+    label: "Users Management",
+    key: "/users/user",
+    icon: <UserOutlined />,
+    role: ["ADMIN"],
+  },
+];

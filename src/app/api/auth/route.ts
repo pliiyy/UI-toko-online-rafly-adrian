@@ -9,7 +9,13 @@ export const POST = async (req: NextRequest) => {
     await req.json();
   try {
     const user: User | null = await prisma.user.findFirst({
-      where: { username: username.toLowerCase() },
+      where: {
+        OR: [
+          { username: username.toLowerCase() },
+          { email: username.toLowerCase() },
+          { phone: username.toLowerCase() },
+        ],
+      },
     });
     if (!user) {
       return NextResponse.json(

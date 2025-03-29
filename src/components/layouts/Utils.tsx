@@ -1,8 +1,10 @@
 "use client";
 
+import { useGoogleLogin } from "@react-oauth/google";
 import {
   DeleteOutlined,
   DollarCircleFilled,
+  GoogleCircleFilled,
   MinusCircleFilled,
   PlusCircleFilled,
   ShoppingCartOutlined,
@@ -18,8 +20,11 @@ import {
   TableProps,
   Typography,
 } from "antd";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useProducts } from "../contexts/CartContext";
+import { useUser } from "../contexts/UserContext";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 const { Paragraph } = Typography;
 
 export const Cart = () => {
@@ -347,15 +352,17 @@ export const ModalDetailProduct = ({
   const [loading, setLoading] = useState(false);
   const product = useProducts();
   const [productInCart, setProductInCat] = useState<ICart>();
+  const [errMessage, setErrMesage] = useState<string | React.ReactNode>();
+  const user = useUser();
 
   const handleAddCart = async () => {
     if (data.rating.count <= 0) {
-      return alert(
+      return setErrMesage(
         "Tidak bisa memasukan kedalam keranjang, karena stok produk tidak mencukupi!"
       );
     }
     if (productInCart && data.rating.count <= productInCart.qty) {
-      return alert(
+      return setErrMesage(
         "Tidak bisa memasukan lagi kedalam keranjang, karena stok produk tidak mencukupi!"
       );
     }
@@ -367,6 +374,23 @@ export const ModalDetailProduct = ({
     });
     product.getCarts();
     setLoading(false);
+  };
+
+  const handlePurchase = () => {
+    if (!user.id) {
+      return setErrMesage(
+        <div className="my-3">
+          <p>Anda harus login untuk melakukan pembelian!</p>
+          <div className="flex gap-2 justify-end">
+            <Link href={"/sign-in"}>
+              <Button type="primary">Login Now</Button>
+            </Link>
+            <p>or</p>
+            <LoginWithGoogle />
+          </div>
+        </div>
+      );
+    }
   };
 
   useEffect(() => {
@@ -429,6 +453,9 @@ export const ModalDetailProduct = ({
           </div>
         </div>
       </div>
+      <div className="text-right text-xss italic text-red-500">
+        {errMessage}
+      </div>
       <div className="flex justify-end gap-2">
         <div key={"cart"}>
           {!productInCart ? (
@@ -466,6 +493,7 @@ export const ModalDetailProduct = ({
           className="text-xs border-green-500 bg-green-500 text-gray-100"
           disabled={data.rating.count === 0 ? true : loading}
           loading={loading}
+          onClick={() => handlePurchase()}
         >
           Beli
         </Button>
@@ -500,5 +528,134 @@ export const NotificationModal = ({
     >
       <div>{data.desc}</div>
     </Modal>
+  );
+};
+
+export const LoginWithGoogle = () => {
+  const [notifData, setNotifData] = useState<ModalMessageProps>({
+    type: "error",
+    show: false,
+    title: "",
+    desc: "",
+  });
+  const [loading, setLoading] = useState(false);
+  const { getUser } = useUser();
+  const router = useRouter();
+
+  const googleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      console.log(tokenResponse);
+      const userInfo = await fetch(
+        `https://www.googleapis.com/oauth2/v1/userinfo?access_token=${tokenResponse.access_token}`,
+        {
+          headers: {
+            Authorization: `Bearer ${tokenResponse.access_token}`,
+            Accept: "application/json",
+          },
+        }
+      )
+        .then((res) => res.json())
+        .then((res) => res)
+        .catch((err) => console.log(err));
+
+      const userData = await fetch("/api/auth/google", {
+        method: "POST",
+        headers: {
+          "Content-type": "Application/json",
+        },
+        body: JSON.stringify(userInfo),
+      })
+        .then((res) => res.json())
+        .then(async (res) => {
+          return res.data;
+        })
+        .catch((err) => {
+          console.log(err);
+          setNotifData({
+            show: true,
+            title: "Internal Server Error",
+            desc: (
+              <div className="text-red-500">
+                <p>Maaf telah terjadi kesalahan. Mohon coba lagi nanti!</p>
+              </div>
+            ),
+            type: "error",
+          });
+        });
+      await fetch("/api/auth", {
+        method: "POST",
+        headers: { "Content-type": "Application/json" },
+        body: JSON.stringify({
+          username: userData.username,
+          password: "123123",
+        }),
+      })
+        .then((res) => res.json())
+        .then(async (res) => {
+          setLoading(false);
+          if (res.status !== 200) {
+            setNotifData({
+              type: "error",
+              title: "Authentication Failed",
+              show: true,
+              desc: (
+                <div>
+                  <p className="text-red-500">
+                    Username, Email atau Password Salah!
+                  </p>
+                  <div className="text-xs text-blue-500 italic my-1">
+                    <p>
+                      Username , Email atau password salah. atau mungkin anda
+                      belum melakukan pendaftaran di platform ini!
+                    </p>
+                  </div>
+                </div>
+              ),
+            });
+            return;
+          }
+          await getUser();
+          setTimeout(async () => {
+            if (res.data.role === "PELANGGAN") {
+              router.push("/products");
+            } else {
+              router.push("/users");
+            }
+          }, 100);
+          return;
+        })
+        .catch((err) => {
+          setLoading(false);
+          console.log(err);
+          setNotifData({
+            type: "error",
+            title: "Internal Server Error",
+            show: true,
+            desc: (
+              <div className="text-red-500">
+                <p>Maaf telah terjadi kesalahan. Mohon coba lagi nanti!</p>
+              </div>
+            ),
+          });
+
+          return;
+        });
+    },
+  });
+  return (
+    <div>
+      <Button
+        icon={<GoogleCircleFilled />}
+        block
+        type="primary"
+        htmlType="button"
+        onClick={() => googleLogin()}
+        loading={loading}
+        disabled={loading}
+      >
+        Sign in with Google
+      </Button>
+      <NotificationModal data={notifData} setData={setNotifData} />
+    </div>
   );
 };

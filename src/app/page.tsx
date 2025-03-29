@@ -15,9 +15,11 @@ export default function Page() {
   const [productsDisplay, setProductsDisplay] = useState<IProduct[]>([]);
   const [sortPrice, setSortPrice] = useState<string>("Low-High");
   const [page, setPage] = useState(1);
+  const [loadFirst, setLoadFirst] = useState(false);
 
   useEffect(() => {
     (async () => {
+      setLoadFirst(true);
       setLoading(true);
       await fetch("https://fakestoreapi.com/products")
         .then((res) => res.json())
@@ -32,11 +34,14 @@ export default function Page() {
 
           setProducts(data);
           setProductsDisplay(paginate(data, 10, 1));
-          setLoading(false);
         })
         .catch((err) => {
           console.log(err);
         });
+      setLoading(false);
+      setTimeout(() => {
+        setLoadFirst(false);
+      }, 3000);
     })();
   }, []);
 
@@ -52,6 +57,13 @@ export default function Page() {
         data = products.filter((p) =>
           p.category.toLocaleLowerCase().includes(selectedCategories)
         );
+      }
+      if (search && selectedCategories) {
+        data = products
+          .filter((p) =>
+            p.category.toLocaleLowerCase().includes(selectedCategories)
+          )
+          .filter((p) => p.title.toLocaleLowerCase().includes(search));
       }
     }
     setProductsDisplay(paginate(data, 10, page));
@@ -74,10 +86,24 @@ export default function Page() {
 
   return (
     <div>
+      <div
+        className={`${
+          loadFirst
+            ? "fixed w-[100vw] h-[100vh] bg-gradient-to-br from-green-400 to-blue-400 flex justify-center items-center z-40"
+            : "hidden"
+        }`}
+      >
+        <Image
+          src={process.env.NEXT_PUBLIC_APP_ICON || "favicon.ico"}
+          width={100}
+          height={100}
+          className="animate-pulse"
+        />
+      </div>
       <div>
         <div
           id="header"
-          className="h-[500px] bg-gradient-to-br from-green-400 to-blue-400 "
+          className="h-[500px] bg-gradient-to-br from-green-400 to-blue-400"
         >
           <div className="flex items-center flex-wrap-reverse gap-5 py-16 px-5 sm:p-16 relative h-[90%]">
             <div className="w-[100vw] sm:flex-1 text-center font-bold text-4xl text-gray-100">
@@ -85,20 +111,13 @@ export default function Page() {
               <p>Rafly Adrian</p>
             </div>
             <div className="flex-1 flex justify-center relative">
-              <Image
-                className="animate-bounce"
-                src="/brand.png"
-                alt="Company Logo"
-              />
-              <div className="absolute w-[100%]  flex justify-center top-2 sm:top-20 animate-pulse">
-                <Image src="/logo.png" alt="Company Logo" width={100} />
-              </div>
+              <Image src="/brand.png" alt="Company Logo" />
             </div>
           </div>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 1440 320"
-            className="absolute bottom-32 sm:bottom-10 z-10"
+            className="absolute bottom-32 sm:bottom-10"
           >
             <path
               fill="#ffffff"

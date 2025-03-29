@@ -1,6 +1,5 @@
 "use client";
 import {
-  GoogleCircleFilled,
   LoginOutlined,
   SecurityScanOutlined,
   UserOutlined,
@@ -10,6 +9,8 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Link from "next/link";
 import { ModalMessageProps } from "../IInterfaces";
+import { useUser } from "../contexts/UserContext";
+import { LoginWithGoogle } from "../layouts";
 
 export default function LoginPage() {
   const [loading, setLoading] = useState(false);
@@ -20,6 +21,7 @@ export default function LoginPage() {
     type: "error",
   });
   const router = useRouter();
+  const { getUser } = useUser();
 
   const onSubmit = async (e: { username: string; password: string }) => {
     setLoading(true);
@@ -29,7 +31,7 @@ export default function LoginPage() {
       body: JSON.stringify(e),
     })
       .then((res) => res.json())
-      .then((res) => {
+      .then(async (res) => {
         setLoading(false);
         if (res.status !== 200) {
           setMessage({
@@ -52,7 +54,8 @@ export default function LoginPage() {
           });
           return;
         }
-        setTimeout(() => {
+        await getUser();
+        setTimeout(async () => {
           if (res.data.role === "PELANGGAN") {
             router.push("/products");
           } else {
@@ -78,6 +81,7 @@ export default function LoginPage() {
         return;
       });
   };
+
   return (
     <div className="flex justify-around items-center">
       <div className="flex-1 hidden sm:flex justify-center">
@@ -100,7 +104,7 @@ export default function LoginPage() {
             </div>
           </div>
           <Form.Item
-            label="Username"
+            label="Username / Email / Phone"
             name={"username"}
             rules={[
               {
@@ -140,15 +144,7 @@ export default function LoginPage() {
             </Button>
             <div className="my-5 text-center">
               <p>Atau</p>
-              <Button
-                icon={<GoogleCircleFilled />}
-                block
-                type="primary"
-                htmlType="button"
-                disabled
-              >
-                Sign in with Google
-              </Button>
+              <LoginWithGoogle />
             </div>
             <div className="text-xs">
               <p>
