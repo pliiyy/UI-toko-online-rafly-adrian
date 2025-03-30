@@ -10,6 +10,7 @@ import {
   LogoutOutlined,
   MenuOutlined,
   ProductOutlined,
+  ShoppingCartOutlined,
   UserAddOutlined,
   UserOutlined,
 } from "@ant-design/icons";
@@ -225,7 +226,7 @@ export const myMenu = [
   },
   {
     label: "Report Transaction",
-    key: "/users/report",
+    key: "/users/transaction",
     icon: <DollarCircleFilled />,
     role: ["ADMIN", "KASIR"],
   },
@@ -234,5 +235,11 @@ export const myMenu = [
     key: "/users/user",
     icon: <UserOutlined />,
     role: ["ADMIN"],
+  },
+  {
+    label: "Transactions",
+    key: "/users/transaction",
+    icon: <ShoppingCartOutlined />,
+    role: ["PELANGGAN"],
   },
 ];

@@ -38,7 +38,7 @@ export interface ICart extends IProduct {
   qty: number;
 }
 
-interface IDetailTransaction extends DetailTransaction {
+export interface IDetailTransaction extends DetailTransaction {
   Product: Product;
 }
 

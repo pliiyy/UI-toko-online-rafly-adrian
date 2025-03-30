@@ -11,12 +11,7 @@ export default function AllProvider({
   children: React.ReactNode;
 }) {
   return (
-    <GoogleOAuthProvider
-      clientId={
-        process.env.NEXT_PUBLIC_APP_CLIENTID ||
-        "312119913529-gpumrr91qvrh53338vvd04d5kmhjrpkm.apps.googleusercontent.com"
-      }
-    >
+    <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_APP_CLIENTID || ""}>
       <ProductProvider>
         <UserProvider>{children}</UserProvider>
       </ProductProvider>

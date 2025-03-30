@@ -31,6 +31,8 @@ export const Cart = () => {
   const { data, getCarts } = useProducts();
   const [openCart, setOpenCart] = useState(false);
   const [loading, setLoading] = useState(false);
+  const user = useUser();
+  const router = useRouter();
 
   const handleAction = async (id: string, action: string) => {
     setLoading(true);
@@ -218,11 +220,16 @@ export const Cart = () => {
     },
   ];
 
+  const handleCheckOut = () => {
+    setOpenCart(false);
+    router.push("/check-out");
+  };
+
   return (
     <>
       <div
         onClick={() => setOpenCart(true)}
-        className="fixed right-8 bottom-8 bg-red-500 w-12 h-12 rounded-full shadow text-white flex gap-1 justify-center items-center hover:text-xl hover:bg-red-600 cursor-pointer z-40 animate-pulse"
+        className="fixed right-8 bottom-8 bg-red-500 w-12 h-12 rounded-full shadow text-white flex gap-1 justify-center items-center hover:text-xl hover:bg-red-600 cursor-pointer z-30 animate-pulse"
       >
         <ShoppingCartOutlined />
         <span className="text-xs font-bold">{data.length}</span>
@@ -237,7 +244,8 @@ export const Cart = () => {
             icon={<DollarCircleFilled />}
             type="primary"
             size="small"
-            disabled={data.length === 0 ? true : false}
+            disabled={data.length === 0 ? true : !user.id ? true : false}
+            onClick={() => handleCheckOut()}
           >
             Checkout
           </Button>,
@@ -354,6 +362,7 @@ export const ModalDetailProduct = ({
   const [productInCart, setProductInCat] = useState<ICart>();
   const [errMessage, setErrMesage] = useState<string | React.ReactNode>();
   const user = useUser();
+  const router = useRouter();
 
   const handleAddCart = async () => {
     if (data.rating.count <= 0) {
@@ -391,6 +400,7 @@ export const ModalDetailProduct = ({
         </div>
       );
     }
+    router.push("/check-out/" + data.id);
   };
 
   useEffect(() => {
@@ -544,7 +554,6 @@ export const LoginWithGoogle = () => {
 
   const googleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
-      console.log(tokenResponse);
       const userInfo = await fetch(
         `https://www.googleapis.com/oauth2/v1/userinfo?access_token=${tokenResponse.access_token}`,
         {

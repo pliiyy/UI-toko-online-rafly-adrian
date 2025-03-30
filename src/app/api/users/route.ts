@@ -55,3 +55,8 @@ export const POST = async (req: NextRequest) => {
     );
   }
 };
+
+export const GET = async (req: NextRequest) => {
+  const data = await prisma.user.findMany();
+  return NextResponse.json({ data: data }, { status: 200 });
+};

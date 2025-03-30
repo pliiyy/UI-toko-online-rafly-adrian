@@ -24,7 +24,7 @@ export async function decrypt(params: string): Promise<JwtPayload> {
 }
 
 export async function signIn(user: User) {
-  const expires = new Date(Date.now() + 3600 * 1000);
+  const expires = new Date(Date.now() + 3600 * 10000);
   const session = await encrypt({ user, expires });
 
   (await cookies()).set("session", session, { expires });
