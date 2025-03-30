@@ -297,8 +297,8 @@ export const ProductCard = ({ data }: { data: IProduct }) => {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="border rounded shadow-md p-1 w-[280px] h-[400px] bg-slate-50 hover:scale-[.99] cursor-pointer">
-      <div className="w-[260px] h-[280px] rounded mx-auto">
+    <div className="border rounded shadow-md p-1 w-[180px] h-[280px] sm:w-[280px] sm:h-[400px] bg-slate-50 hover:scale-[.99] cursor-pointer">
+      <div className="w-[130px] h-[120px] sm:w-[260px] sm:h-[280px] rounded mx-auto">
         <Image
           src={data.image}
           width={"100%"}
@@ -322,7 +322,7 @@ export const ProductCard = ({ data }: { data: IProduct }) => {
             {data.title}
           </Paragraph>
         </div>
-        <div className="flex gap-4 text-xs justify-between">
+        <div className="flex flex-wrap gap-2 sm:gap-4 text-xs justify-between">
           <div>
             <p>
               <span className="opacity-50">Rate: </span>

@@ -5,7 +5,9 @@ export const metadata: Metadata = {
   title: "Checkout",
 };
 
-export default async function Page({ params }: { params: { id: string } }) {
+type tParams = Promise<{ id: string }>;
+
+export default async function Page({ params }: { params: tParams }) {
   const { id } = await params;
   return (
     <div className="mt-10 py-4 px-2">

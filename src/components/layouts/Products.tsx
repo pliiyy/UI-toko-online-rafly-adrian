@@ -72,7 +72,7 @@ export const UIProducts = () => {
   }
   return (
     <div className="p-4">
-      <div className="flex gap-2 justify-end">
+      <div className="flex gap-2 justify-end flex-wrap">
         <div>
           <Select
             options={categories.map((c) => ({ label: c, value: c }))}

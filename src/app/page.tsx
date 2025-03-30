@@ -145,7 +145,7 @@ export default function Page() {
               Our Products
             </p>
           </div>
-          <div className="flex gap-2 justify-end">
+          <div className="flex gap-2 justify-end flex-wrap">
             <div>
               <Select
                 options={categories.map((c) => ({ label: c, value: c }))}

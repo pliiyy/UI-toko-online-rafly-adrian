@@ -1,144 +1,101 @@
 "use client";
 
-import { useState } from "react";
-import { ITransaction, IUser } from "../IInterfaces";
-import { DollarCircleFilled, UserSwitchOutlined } from "@ant-design/icons";
-import { Table, TableProps } from "antd";
+import { useEffect, useState } from "react";
+import { ICardDashboard, ITransaction } from "../IInterfaces";
+import {
+  DollarCircleFilled,
+  LoadingOutlined,
+  ShoppingCartOutlined,
+  UserOutlined,
+} from "@ant-design/icons";
+import { User } from "@prisma/client";
 
 export default function DashboardAdmin() {
-  const [cards, setCards] = useState<ICardDashboard[]>([]);
+  const [data, setData] = useState<ICardDashboard[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      const cards: ICardDashboard[] = [];
+      setLoading(true);
+      await fetch("/api/users")
+        .then((res) => res.json())
+        .then((res) => {
+          cards.push({
+            name: "PELANGGAN",
+            icon: <UserOutlined />,
+            total: (res.data as User[])
+              .filter((u) => u.role === "PELANGGAN")
+              .length.toString(),
+          });
+          cards.push({
+            name: "KASIR",
+            icon: <UserOutlined />,
+            total: (res.data as User[])
+              .filter((u) => u.role === "KASIR")
+              .length.toString(),
+          });
+          cards.push({
+            name: "ADMIN",
+            icon: <UserOutlined />,
+            total: (res.data as User[])
+              .filter((u) => u.role === "ADMIN")
+              .length.toString(),
+          });
+        });
+      await fetch("/api/transaction")
+        .then((res) => res.json())
+        .then((res) => {
+          const tempData: ITransaction[] = res.data;
+          cards.push({
+            name: "TOTAL TRANSAKSI",
+            icon: <ShoppingCartOutlined />,
+            total: tempData.length.toString(),
+          });
+          let tempNominal = 0;
+          tempData.forEach((t) => {
+            t.DetailTransaction.forEach(
+              (d) => (tempNominal += d.price * d.qty)
+            );
+          });
+          cards.push({
+            name: "NOMINAL TRANSAKSI",
+            icon: <DollarCircleFilled />,
+            total: new Intl.NumberFormat("id-ID", {
+              currency: "IDR",
+              style: "currency",
+            }).format(tempNominal),
+          });
+        });
+      setData(cards);
+      setLoading(false);
+    })();
+  }, []);
 
   return (
-    <div className="m-5">
-      <div className="flex gap-4">
-        <div className="flex-1 flex justify-center items-center bg-gray-50 rounded shadow-xl">
-          Chart
+    <div className="p-4">
+      <div className="flex flex-wrap-reverse gap-5">
+        <div className="w-[95%] m-auto bg-gray-50 sm:flex-1 border rounded shadow p-2 flex justify-center items-center">
+          CHART
         </div>
-        <div className="flex-1 flex justify-around gap-4 items-center flex-wrap">
-          <div className="bg-gradient-to-br from-blue-500 to-green-500 p-2 rounded shadow-xl text-sm text-center font-bold text-gray-200 w-56">
-            <div className="opacity-50">
-              <DollarCircleFilled /> <span>Total Transaksi</span>
-            </div>
-            <p className="text-center my-2 text-2xl">0</p>
-          </div>
-          <div className="bg-gradient-to-br from-blue-500 to-green-500 p-2 rounded shadow-xl text-sm text-center font-bold text-gray-200 w-56">
-            <div className="opacity-50">
-              <DollarCircleFilled /> <span>Nominal Transaksi</span>
-            </div>
-            <p className="text-center my-2 text-2xl">0</p>
-          </div>
-          <div className="bg-gradient-to-br from-blue-500 to-green-500 p-2 rounded shadow-xl text-sm text-center font-bold text-gray-200 w-56">
-            <div className="opacity-50">
-              <UserSwitchOutlined /> <span>Total Pelanggan</span>
-            </div>
-            <p className="text-center my-2 text-2xl">0</p>
-          </div>
-          <div className="bg-gradient-to-br from-blue-500 to-green-500 p-2 rounded shadow-xl text-sm text-center font-bold text-gray-200 w-56">
-            <div className="opacity-50">
-              <UserSwitchOutlined /> <span>Total Kasir</span>
-            </div>
-            <p className="text-center my-2 text-2xl">0</p>
-          </div>
+        <div className="flex-1 flex justify-around flex-wrap gap-5">
+          {loading ? (
+            <LoadingOutlined />
+          ) : (
+            <>
+              {data && data.map((d, i) => <CardDashboard key={i} data={d} />)}
+            </>
+          )}
         </div>
-      </div>
-      <div className="my-5 mx-1">
-        <Table
-          size="small"
-          bordered
-          scroll={{ x: "max-content" }}
-          pagination={false}
-          columns={columns}
-        />
       </div>
     </div>
   );
 }
-
-interface ICardDashboard {
-  name: string;
-  user: IUser[];
-}
-
-const columns: TableProps<ITransaction>["columns"] = [
-  {
-    title: "No",
-    key: "no",
-    dataIndex: "no",
-    className: "text-center text-xs",
-    width: 40,
-    onHeaderCell: () => {
-      return {
-        ["style"]: {
-          textAlign: "center",
-          fontSize: 12,
-        },
-      };
-    },
-    render(value, record, index) {
-      return <>{index + 1}</>;
-    },
-  },
-  {
-    title: "Nama Pengguna",
-    key: "namaPengguna",
-    dataIndex: "namaPengguna",
-    className: "text-center text-xs",
-    width: 80,
-    onHeaderCell: () => {
-      return {
-        ["style"]: {
-          textAlign: "center",
-          fontSize: 12,
-        },
-      };
-    },
-    render(value, record, index) {
-      return <>{record.User.fullname}</>;
-    },
-  },
-  {
-    title: "Total Transaksi",
-    key: "totalTransaksi",
-    dataIndex: "totalTransaksi",
-    className: "text-center text-xs",
-    width: 80,
-    onHeaderCell: () => {
-      return {
-        ["style"]: {
-          textAlign: "center",
-          fontSize: 12,
-        },
-      };
-    },
-    render(value, record, index) {
-      return <>{record.DetailTransaction.length}</>;
-    },
-  },
-  {
-    title: "Nominal Transaksi",
-    key: "nominalTransaksi",
-    dataIndex: "nominalTransaksi",
-    className: "text-center text-xs",
-    width: 80,
-    onHeaderCell: () => {
-      return {
-        ["style"]: {
-          textAlign: "center",
-          fontSize: 12,
-        },
-      };
-    },
-    render(value, record, index) {
-      let nominal = 0;
-      record.DetailTransaction.forEach((tx) => (nominal += tx.price * tx.qty));
-      return (
-        <>
-          {new Intl.NumberFormat("id-ID", {
-            currency: "IDR",
-            style: "currency",
-          }).format(nominal)}
-        </>
-      );
-    },
-  },
-];
+const CardDashboard = ({ data }: { data: ICardDashboard }) => (
+  <div className=" flex-1 bg-gradient-to-br from-green-400 to-blue-500 text-gray-100 p-5 text-center rounded shadow">
+    <p className="text-sm opacity-80 text-nowrap">
+      {data.icon} {data.name}
+    </p>
+    <p className="text-2xl font-bold">{data.total}</p>
+  </div>
+);
