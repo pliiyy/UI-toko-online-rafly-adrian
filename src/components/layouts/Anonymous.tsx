@@ -14,11 +14,13 @@ import {
   UserAddOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-import { Button, Drawer, Image, Menu, Modal } from "antd";
+import { Button, Drawer, Image, Input, Menu, Modal } from "antd";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { useUser } from "../contexts/UserContext";
 import { IUser, ModalMessageProps } from "../IInterfaces";
+import { useData } from "../contexts/ProductContext";
+import { Cart } from ".";
 
 export default function Anonymous({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
@@ -33,6 +35,7 @@ export default function Anonymous({ children }: { children: React.ReactNode }) {
     type: "error",
   });
   const [tempUser, setTempUser] = useState<IUser>();
+  const { searchProduct } = useData();
 
   const handleLogout = async () => {
     setLoading(true);
@@ -88,7 +91,15 @@ export default function Anonymous({ children }: { children: React.ReactNode }) {
           width={40}
           alt="App Icon"
         />
-        <div className="drop-shadow-xl">Product Apps</div>
+        <div className="drop-shadow-xl flex gap-4 items-center w-[250px] sm:w-[500px]">
+          <Input.Search
+            placeholder="search products"
+            onChange={(e) => searchProduct(e.target.value)}
+          />
+          <div>
+            <Cart />
+          </div>
+        </div>
         <div>
           <Button ghost onClick={() => setOpen(!open)}>
             <MenuOutlined />

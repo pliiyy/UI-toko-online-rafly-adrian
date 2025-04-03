@@ -32,7 +32,7 @@ export default function RootLayout({
             <div>
               <AllProvider>
                 <AnonymousLayout>{children}</AnonymousLayout>
-                <Cart />
+                {/* <Cart /> */}
               </AllProvider>
             </div>
           </App>

@@ -1,6 +1,6 @@
 "use client";
 
-import { IProduct } from "@/components/IInterfaces";
+import { useData } from "@/components/contexts/ProductContext";
 import { ProductCard } from "@/components/layouts";
 import { LoadingOutlined } from "@ant-design/icons";
 import { Image, Input, Pagination, Select, Spin } from "antd";
@@ -8,81 +8,22 @@ import { useEffect, useState } from "react";
 
 export default function Page() {
   const [loading, setLoading] = useState(false);
-  const [search, setSearch] = useState<string>();
-  const [categories, setCategories] = useState<string[]>([]);
-  const [selectedCategories, setSelectedCategories] = useState<string>();
-  const [products, setProducts] = useState<IProduct[]>([]);
-  const [productsDisplay, setProductsDisplay] = useState<IProduct[]>([]);
-  const [sortPrice, setSortPrice] = useState<string>("Low-High");
-  const [page, setPage] = useState(1);
   const [loadFirst, setLoadFirst] = useState(false);
+  const [sorted, sortProduct] = useState<string>();
+  const { data, resetProduct, categoryProduct, changePage, categories, total } =
+    useData();
 
   useEffect(() => {
     (async () => {
       setLoadFirst(true);
       setLoading(true);
-      await fetch("https://fakestoreapi.com/products")
-        .then((res) => res.json())
-        .then((res) => {
-          const data: IProduct[] = res;
-          const tempCategories = data.map((d) => d.category);
-          setCategories(
-            tempCategories.filter((value, index, array) => {
-              return array.indexOf(value) === index;
-            })
-          );
-
-          setProducts(data);
-          setProductsDisplay(paginate(data, 10, 1));
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-      setLoading(false);
+      await resetProduct(1);
       setTimeout(() => {
         setLoadFirst(false);
       }, 3000);
+      setLoading(false);
     })();
   }, []);
-
-  useEffect(() => {
-    let data: IProduct[] = products;
-    if (search || selectedCategories) {
-      if (search) {
-        data = products.filter((p) =>
-          p.title.toLocaleLowerCase().includes(search)
-        );
-      }
-      if (selectedCategories) {
-        data = products.filter((p) =>
-          p.category.toLocaleLowerCase().includes(selectedCategories)
-        );
-      }
-      if (search && selectedCategories) {
-        data = products
-          .filter((p) =>
-            p.category.toLocaleLowerCase().includes(selectedCategories)
-          )
-          .filter((p) => p.title.toLocaleLowerCase().includes(search));
-      }
-    }
-    setProductsDisplay(paginate(data, 10, page));
-  }, [search, selectedCategories, page]);
-
-  useEffect(() => {
-    if (sortPrice === "Low-High") {
-      setProductsDisplay((prev) => prev.sort((a, b) => a.price - b.price));
-    } else {
-      setProductsDisplay((prev) =>
-        prev.sort((a, b) => a.price - b.price).reverse()
-      );
-    }
-  }, [sortPrice]);
-
-  function paginate(array: IProduct[], page_size: number, page_number: number) {
-    // human-readable page numbers usually start with 1, so we reduce 1 in the first argument
-    return array.slice((page_number - 1) * page_size, page_number * page_size);
-  }
 
   return (
     <div>
@@ -103,7 +44,7 @@ export default function Page() {
       <div>
         <div
           id="header"
-          className="h-[500px] bg-gradient-to-br from-green-400 to-blue-400"
+          className="h-[500px] bg-gradient-to-br from-green-400 to-blue-400 relative"
         >
           <div className="flex items-center flex-wrap-reverse gap-5 py-16 px-5 sm:p-16 relative h-[90%]">
             <div className="w-[100vw] sm:flex-1 text-center font-bold text-4xl text-gray-100">
@@ -117,7 +58,7 @@ export default function Page() {
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 1440 320"
-            className="absolute bottom-32 sm:bottom-10"
+            className="absolute -bottom-5 sm:bottom-0"
           >
             <path
               fill="#ffffff"
@@ -128,7 +69,7 @@ export default function Page() {
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 1440 320"
-            className="absolute bottom-36 sm:bottom-14 opacity-50 z-10"
+            className="absolute bottom-0 sm:bottom-5 opacity-50"
           >
             <path
               fill="#ffffff"
@@ -145,12 +86,12 @@ export default function Page() {
               Our Products
             </p>
           </div>
-          <div className="flex gap-2 justify-end flex-wrap">
+          <div className="flex gap-2 justify-center flex-wrap my-10">
             <div>
               <Select
                 options={categories.map((c) => ({ label: c, value: c }))}
                 placeholder="Categories"
-                onChange={(e) => setSelectedCategories(e)}
+                onChange={(e) => categoryProduct(e)}
                 allowClear
                 className="w-44"
               />
@@ -162,34 +103,49 @@ export default function Page() {
                   value: c,
                 }))}
                 placeholder="Sort Price"
-                onChange={(e) => setSortPrice(e)}
+                onChange={(e) => sortProduct(e)}
                 allowClear
                 className="w-44"
                 defaultValue={"Low-High"}
               />
             </div>
-            <div className="w-[200px]">
-              <Input.Search
-                placeholder="Search"
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </div>
           </div>
           <div className="my-5 flex gap-5 justify-around flex-wrap">
-            {productsDisplay &&
-              productsDisplay.map((product) => (
-                <ProductCard data={product} key={product.id} />
-              ))}
+            {sorted ? (
+              <>
+                {sorted === "Low-High" && (
+                  <>
+                    {data
+                      .sort((a, b) => a.price - b.price)
+                      .map((product) => (
+                        <ProductCard data={product} key={product.id} />
+                      ))}
+                  </>
+                )}
+                {sorted === "High-Low" && (
+                  <>
+                    {data
+                      .sort((a, b) => a.price - b.price)
+                      .reverse()
+                      .map((product) => (
+                        <ProductCard data={product} key={product.id} />
+                      ))}
+                  </>
+                )}
+              </>
+            ) : (
+              <>
+                {data.map((product) => (
+                  <ProductCard data={product} key={product.id} />
+                ))}
+              </>
+            )}
           </div>
-          <div className="my-2 flex justify-end">
+          <div className="my-8 flex justify-center">
             <Pagination
-              total={
-                search || selectedCategories
-                  ? productsDisplay.length
-                  : products.length
-              }
+              total={total}
               pageSize={10}
-              onChange={(page) => setPage(page)}
+              onChange={(page) => changePage(page)}
             />
           </div>
         </div>

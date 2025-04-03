@@ -55,13 +55,11 @@ export default function LoginPage() {
           return;
         }
         await getUser();
-        setTimeout(async () => {
-          if (res.data.role === "PELANGGAN") {
-            router.push("/products");
-          } else {
-            router.push("/users");
-          }
-        }, 100);
+        if (res.data.role === "PELANGGAN") {
+          router.push("/products");
+        } else {
+          router.push("/users");
+        }
         return;
       })
       .catch((err) => {

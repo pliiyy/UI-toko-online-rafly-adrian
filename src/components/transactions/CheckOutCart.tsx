@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ICart, ITransaction, ModalMessageProps } from "../IInterfaces";
-import { Button, Spin, Table, TableProps } from "antd";
+import { Button, Image, Select, Spin, Table, TableProps } from "antd";
 import { NotificationModal } from "../layouts/Utils";
 import {
   DeleteOutlined,
@@ -25,6 +25,7 @@ export const CheckOutCart = () => {
   const user = useUser();
   const [loading, setLoading] = useState(false);
   const [total, setTotal] = useState(0);
+  const [statusPaymnet, setStatusPayment] = useState(true);
 
   useEffect(() => {
     (async () => {
@@ -60,7 +61,7 @@ export const CheckOutCart = () => {
           }))
         : [],
       createdAt: new Date(),
-      status: false,
+      status: statusPaymnet,
     };
 
     await fetch("/api/transaction", {
@@ -78,6 +79,11 @@ export const CheckOutCart = () => {
             desc: <p className="text-red-500">{res.msg}</p>,
           });
         }
+
+        trx.DetailTransaction.forEach(async (p) => {
+          await handleAction(p.Product.id, "DEL");
+        });
+
         return setModalNotif({
           type: "success",
           show: true,
@@ -106,7 +112,7 @@ export const CheckOutCart = () => {
                   <p className="w-20">Status</p>
                   <p>:</p>
                   <p className="text-right">
-                    {status ? "BAYAR DI TEMPAT" : "TRANSFER"}
+                    {statusPaymnet ? "BAYAR DI TEMPAT" : "TRANSFER"}
                   </p>
                 </div>
               </div>
@@ -219,6 +225,28 @@ export const CheckOutCart = () => {
       },
       render(value, record, index) {
         return <>{index + 1}</>;
+      },
+    },
+    {
+      title: "Gambar",
+      key: "image",
+      dataIndex: "image",
+      className: "text-xs",
+      width: 60,
+      onHeaderCell: () => {
+        return {
+          ["style"]: {
+            textAlign: "center",
+            fontSize: 12,
+          },
+        };
+      },
+      render(value, record, index) {
+        return (
+          <div className="flex justify-center">
+            <Image src={record.image} alt={record.title} width={50} />
+          </div>
+        );
       },
     },
     {
@@ -401,27 +429,73 @@ export const CheckOutCart = () => {
                 <Table.Summary.Cell index={3}></Table.Summary.Cell>
                 <Table.Summary.Cell index={4}></Table.Summary.Cell>
                 <Table.Summary.Cell index={5}></Table.Summary.Cell>
-                <Table.Summary.Cell index={6} className="text-right">
+                <Table.Summary.Cell index={6}></Table.Summary.Cell>
+                <Table.Summary.Cell index={7} className="text-right">
                   {new Intl.NumberFormat("id-ID", {
                     currency: "IDR",
                     style: "currency",
                   }).format(plafond)}
                 </Table.Summary.Cell>
-                <Table.Summary.Cell index={7}></Table.Summary.Cell>
+                <Table.Summary.Cell index={8}></Table.Summary.Cell>
               </Table.Summary.Row>
             );
           }}
         />
-        <div className="flex justify-end my-5">
-          <Button
-            icon={<ShoppingCartOutlined />}
-            type="primary"
-            onClick={() => handlePurchased()}
-            loading={loading}
-            disabled={loading}
-          >
-            Purchase
-          </Button>
+        <div className="flex justify-center">
+          <div className="my-8 flex gap-4 flex-col">
+            {/* <p className="font-bold text-xl my-4 text-center">Detail</p> */}
+            <div className="flex gap-2">
+              <p className="w-40">Tanggal</p>
+              <p className="w-5">:</p>
+              <p>{moment().format("DD/MM/YYYY")}</p>
+            </div>
+            <div className="flex gap-2">
+              <p className="w-40">Total Produk</p>
+              <p className="w-5">:</p>
+              <p>{data.length}</p>
+            </div>
+            <div className="flex gap-2">
+              <p className="w-40">Subtotal</p>
+              <p className="w-5">:</p>
+              <p>
+                {new Intl.NumberFormat("id-ID", {
+                  currency: "IDR",
+                  style: "currency",
+                }).format(total)}
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <p className="w-40">Status Pembayaran</p>
+              <p className="w-5">:</p>
+              <p>
+                <Select
+                  options={[
+                    { label: "BAYAR DI TEMPAT", value: true },
+                    { label: "TRANSFER", value: false },
+                  ]}
+                  value={statusPaymnet}
+                  onChange={(e) => setStatusPayment(e)}
+                />
+              </p>
+            </div>
+            <div className="my-5 flex justify-end">
+              <Button
+                icon={<ShoppingCartOutlined />}
+                type="primary"
+                onClick={() => handlePurchased()}
+                loading={loading}
+                disabled={
+                  data.length === 0
+                    ? true
+                    : !user.id || user.id === ""
+                    ? true
+                    : loading
+                }
+              >
+                Purchase
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
       <NotificationModal data={modalNotif} setData={setModalNotif} />

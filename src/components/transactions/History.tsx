@@ -189,7 +189,10 @@ const columns: TableProps<ITransaction>["columns"] = [
     render(value, record, index) {
       return (
         <div className="flex justify-center">
-          <CetakDetail currData={record.DetailTransaction} />
+          <CetakDetail
+            currData={record.DetailTransaction}
+            status={record.status}
+          />
         </div>
       );
     },
@@ -281,7 +284,13 @@ const columnsExpand: TableProps<IDetailTransaction>["columns"] = [
   },
 ];
 
-const CetakDetail = ({ currData }: { currData: IDetailTransaction[] }) => {
+const CetakDetail = ({
+  currData,
+  status,
+}: {
+  currData: IDetailTransaction[];
+  status: boolean;
+}) => {
   const [open, setOpen] = useState(false);
   const [data, setData] = useState<IDetailTransaction[]>([]);
   const [total, setTotal] = useState(0);

@@ -15,6 +15,7 @@ import {
   Button,
   Image,
   Modal,
+  Rate,
   Spin,
   Table,
   TableProps,
@@ -68,6 +69,28 @@ export const Cart = () => {
       },
       render(value, record, index) {
         return <>{index + 1}</>;
+      },
+    },
+    {
+      title: "Gambar",
+      key: "image",
+      dataIndex: "image",
+      className: "text-xs",
+      width: 60,
+      onHeaderCell: () => {
+        return {
+          ["style"]: {
+            textAlign: "center",
+            fontSize: 12,
+          },
+        };
+      },
+      render(value, record, index) {
+        return (
+          <div className="flex justify-center">
+            <Image src={record.image} alt={record.title} width={50} />
+          </div>
+        );
       },
     },
     {
@@ -229,26 +252,37 @@ export const Cart = () => {
     <>
       <div
         onClick={() => setOpenCart(true)}
-        className="fixed right-8 bottom-8 bg-red-500 w-12 h-12 rounded-full shadow text-white flex gap-1 justify-center items-center hover:text-xl hover:bg-red-600 cursor-pointer z-30 animate-pulse"
+        className=" text-white flex gap-1 justify-center items-center hover:text-xl cursor-pointer relative"
       >
         <ShoppingCartOutlined />
-        <span className="text-xs font-bold">{data.length}</span>
+        <span className="text-xs font-bold absolute -right-2 -top-1">
+          {data.length}
+        </span>
       </div>
       <Modal
         open={openCart}
         onClose={() => setOpenCart(false)}
         onCancel={() => setOpenCart(false)}
         footer={[
-          <Button
-            key={"checkout"}
-            icon={<DollarCircleFilled />}
-            type="primary"
-            size="small"
-            disabled={data.length === 0 ? true : !user.id ? true : false}
-            onClick={() => handleCheckOut()}
-          >
-            Checkout
-          </Button>,
+          <div key={"login"} className="flex gap-2 justify-end items-center">
+            <div
+              className={`${!user.id || user.id === "" ? "flex" : "hidden"}`}
+            >
+              <LoginWithGoogle />
+            </div>
+            <div>
+              <Button
+                key={"checkout"}
+                icon={<DollarCircleFilled />}
+                type="primary"
+                size="small"
+                disabled={data.length === 0 ? true : !user.id ? true : false}
+                onClick={() => handleCheckOut()}
+              >
+                Checkout
+              </Button>
+            </div>
+          </div>,
         ]}
         title="Keranjang Saya"
         width={window && window.innerWidth > 600 ? "80vw" : "98vw"}
@@ -277,13 +311,14 @@ export const Cart = () => {
                 <Table.Summary.Cell index={3}></Table.Summary.Cell>
                 <Table.Summary.Cell index={4}></Table.Summary.Cell>
                 <Table.Summary.Cell index={5}></Table.Summary.Cell>
-                <Table.Summary.Cell index={6} className="text-right">
+                <Table.Summary.Cell index={6}></Table.Summary.Cell>
+                <Table.Summary.Cell index={7} className="text-right">
                   {new Intl.NumberFormat("id-ID", {
                     currency: "IDR",
                     style: "currency",
                   }).format(plafond)}
                 </Table.Summary.Cell>
-                <Table.Summary.Cell index={7}></Table.Summary.Cell>
+                <Table.Summary.Cell index={8}></Table.Summary.Cell>
               </Table.Summary.Row>
             );
           }}
@@ -324,10 +359,14 @@ export const ProductCard = ({ data }: { data: IProduct }) => {
         </div>
         <div className="flex flex-wrap gap-2 sm:gap-4 text-xs justify-between">
           <div>
-            <p>
+            <div>
               <span className="opacity-50">Rate: </span>
-              {data.rating.rate} / 5
-            </p>
+              <Rate
+                defaultValue={data.rating.rate}
+                style={{ fontSize: 9 }}
+                disabled
+              />
+            </div>
             <p>
               <span className="opacity-50">Stock: </span> {data.rating.count}
             </p>
@@ -624,13 +663,11 @@ export const LoginWithGoogle = () => {
             return;
           }
           await getUser();
-          setTimeout(async () => {
-            if (res.data.role === "PELANGGAN") {
-              router.push("/products");
-            } else {
-              router.push("/users");
-            }
-          }, 100);
+          if (res.data.role === "PELANGGAN") {
+            router.push("/products");
+          } else {
+            router.push("/users");
+          }
           return;
         })
         .catch((err) => {
@@ -662,7 +699,7 @@ export const LoginWithGoogle = () => {
         loading={loading}
         disabled={loading}
       >
-        Sign in with Google
+        Login with Google
       </Button>
       <NotificationModal data={notifData} setData={setNotifData} />
     </div>
