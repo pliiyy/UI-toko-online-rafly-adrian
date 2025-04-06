@@ -1,28 +1,37 @@
 "use client";
 
 import { useData } from "@/components/contexts/ProductContext";
-import { ProductCard } from "@/components/layouts";
+import { CardCategory, ProductCard } from "@/components/layouts";
 import { LoadingOutlined } from "@ant-design/icons";
-import { Image, Input, Pagination, Select, Spin } from "antd";
+import { Carousel, Image, Pagination, Select, Spin } from "antd";
 import { useEffect, useState } from "react";
 
 export default function Page() {
   const [loading, setLoading] = useState(false);
   const [loadFirst, setLoadFirst] = useState(false);
-  const [sorted, sortProduct] = useState<string>();
-  const { data, resetProduct, categoryProduct, changePage, categories, total } =
-    useData();
+  const {
+    data,
+    categories,
+    total,
+    getData,
+    setOrder,
+    setPage,
+    setSelectedBrand,
+  } = useData();
 
   useEffect(() => {
+    setLoadFirst(true);
     (async () => {
-      setLoadFirst(true);
       setLoading(true);
-      await resetProduct(1);
-      setTimeout(() => {
-        setLoadFirst(false);
-      }, 3000);
+      await getData();
+      setOrder("asc");
+      setSelectedBrand("");
+      setPage(1);
       setLoading(false);
     })();
+    setTimeout(() => {
+      setLoadFirst(false);
+    }, 3000);
   }, []);
 
   return (
@@ -47,9 +56,9 @@ export default function Page() {
           className="h-[500px] bg-gradient-to-br from-green-400 to-blue-400 relative"
         >
           <div className="flex items-center flex-wrap-reverse gap-5 py-16 px-5 sm:p-16 relative h-[90%]">
-            <div className="w-[100vw] sm:flex-1 text-center font-bold text-4xl text-gray-100">
-              <p className="sm:mb-5">Example Marketplace</p>
-              <p>Rafly Adrian</p>
+            <div className="w-[100vw] sm:flex-1 text-center font-bold text-5xl text-gray-100">
+              <p className="sm:mb-5">Beparari</p>
+              <p>Shop</p>
             </div>
             <div className="flex-1 flex justify-center relative">
               <Image src="/brand.png" alt="Company Logo" />
@@ -58,7 +67,7 @@ export default function Page() {
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 1440 320"
-            className="absolute -bottom-5 sm:bottom-0"
+            className="absolute -bottom-5 sm:-bottom-20"
           >
             <path
               fill="#ffffff"
@@ -69,7 +78,7 @@ export default function Page() {
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 1440 320"
-            className="absolute bottom-0 sm:bottom-5 opacity-50"
+            className="absolute bottom-0 sm:-bottom-10 opacity-50"
           >
             <path
               fill="#ffffff"
@@ -79,73 +88,72 @@ export default function Page() {
           </svg>
         </div>
       </div>
+      <div className="mt-28 p-4 bg-white ">
+        <Carousel autoplay className="w-[300px] h-[300px] mx-auto">
+          <Image src="/promo1.jpeg" />
+          <Image src="/promo2.jpeg" />
+          <Image src="/promo3.jpeg" />
+        </Carousel>
+      </div>
+      <div className="mt-8 p-4 bg-white">
+        <p className="font-bold text-xl my-8">Kategori Pilihan</p>
+        <div className="flex justify-around gap-2 flex-wrap">
+          {categories.map((c, i) => (
+            <CardCategory key={i} category={c} />
+          ))}
+        </div>
+      </div>
       <Spin spinning={loading} indicator={<LoadingOutlined />}>
         <div className="mt-32 my-20 p-4">
           <div className="border-b-2 w-[80%] sm:w-[50%] mx-auto border-blue-500 p-2 my-5">
             <p className="text-2xl font-bold text-center drop-shadow-xl">
-              Our Products
+              Rekomendasi
             </p>
           </div>
           <div className="flex gap-2 justify-center flex-wrap my-10">
             <div>
               <Select
-                options={categories.map((c) => ({ label: c, value: c }))}
-                placeholder="Categories"
-                onChange={(e) => categoryProduct(e)}
+                options={[
+                  { label: "Low-High", value: "asc" },
+                  { label: "High-Low", value: "desc" },
+                ].map((c) => ({
+                  label: c.label,
+                  value: c.value,
+                }))}
+                onChange={(e) => setOrder(e)}
                 allowClear
                 className="w-44"
+                defaultValue={"asc"}
               />
             </div>
             <div>
               <Select
-                options={["Low-High", "High-Low"].map((c) => ({
-                  label: c,
-                  value: c,
-                }))}
-                placeholder="Sort Price"
-                onChange={(e) => sortProduct(e)}
+                options={data
+                  .map((d) => d.brand)
+                  .filter((value, index, array) => {
+                    return array.indexOf(value) === index;
+                  })
+                  .map((c) => ({
+                    label: c,
+                    value: c,
+                  }))}
+                placeholder="Brand"
+                onChange={(e) => setSelectedBrand(e)}
                 allowClear
                 className="w-44"
-                defaultValue={"Low-High"}
               />
             </div>
           </div>
           <div className="my-5 flex gap-5 justify-around flex-wrap">
-            {sorted ? (
-              <>
-                {sorted === "Low-High" && (
-                  <>
-                    {data
-                      .sort((a, b) => a.price - b.price)
-                      .map((product) => (
-                        <ProductCard data={product} key={product.id} />
-                      ))}
-                  </>
-                )}
-                {sorted === "High-Low" && (
-                  <>
-                    {data
-                      .sort((a, b) => a.price - b.price)
-                      .reverse()
-                      .map((product) => (
-                        <ProductCard data={product} key={product.id} />
-                      ))}
-                  </>
-                )}
-              </>
-            ) : (
-              <>
-                {data.map((product) => (
-                  <ProductCard data={product} key={product.id} />
-                ))}
-              </>
-            )}
+            {data.map((product) => (
+              <ProductCard data={product} key={product.id} />
+            ))}
           </div>
           <div className="my-8 flex justify-center">
             <Pagination
               total={total}
               pageSize={10}
-              onChange={(page) => changePage(page)}
+              onChange={(page) => setPage(page)}
             />
           </div>
         </div>

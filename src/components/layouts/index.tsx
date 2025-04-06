@@ -31,6 +31,13 @@ export const ProductCard = dynamic(
     loading: () => <LoadingOutlined />,
   }
 );
+export const CardCategory = dynamic(
+  () => import("@/components/layouts/Utils").then((d) => d.CardCategory),
+  {
+    ssr: false,
+    loading: () => <LoadingOutlined />,
+  }
+);
 export const UIProducts = dynamic(
   () => import("@/components/layouts/Products").then((d) => d.UIProducts),
   {
@@ -40,6 +47,16 @@ export const UIProducts = dynamic(
 );
 export const LoginWithGoogle = dynamic(
   () => import("@/components/layouts/Utils").then((d) => d.LoginWithGoogle),
+  {
+    ssr: false,
+    loading: () => <LoadingOutlined />,
+  }
+);
+export const ProductByCategory = dynamic(
+  () =>
+    import("@/components/layouts/ProductsByCategory").then(
+      (d) => d.ProductByCategory
+    ),
   {
     ssr: false,
     loading: () => <LoadingOutlined />,

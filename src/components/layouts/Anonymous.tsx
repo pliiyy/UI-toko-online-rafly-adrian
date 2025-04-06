@@ -8,7 +8,7 @@ import {
   HomeOutlined,
   LoginOutlined,
   LogoutOutlined,
-  MenuOutlined,
+  // MenuOutlined,
   ProductOutlined,
   ShoppingCartOutlined,
   UserAddOutlined,
@@ -21,6 +21,7 @@ import { useUser } from "../contexts/UserContext";
 import { IUser, ModalMessageProps } from "../IInterfaces";
 import { useData } from "../contexts/ProductContext";
 import { Cart } from ".";
+import Link from "next/link";
 
 export default function Anonymous({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
@@ -35,7 +36,7 @@ export default function Anonymous({ children }: { children: React.ReactNode }) {
     type: "error",
   });
   const [tempUser, setTempUser] = useState<IUser>();
-  const { searchProduct } = useData();
+  const { setSearch } = useData();
 
   const handleLogout = async () => {
     setLoading(true);
@@ -84,26 +85,59 @@ export default function Anonymous({ children }: { children: React.ReactNode }) {
   return (
     <div className="z-40">
       <div
-        className={`flex justify-between py-2 px-4 bg-gradient-to-br from-green-400 to-blue-400 opacity-50 items-center font-bold text-lg text-gray-50 fixed top-0 w-full z-10`}
+        className={`flex justify-between py-2 px-4 bg-gradient-to-br from-green-400 to-blue-400 opacity-90 items-center font-bold text-lg text-gray-50 fixed top-0 w-full z-10`}
       >
-        <Image
-          src={process.env.NEXT_PUBLIC_APP_ICON || "favicon.ico"}
-          width={40}
-          alt="App Icon"
-        />
-        <div className="drop-shadow-xl flex gap-4 items-center w-[250px] sm:w-[500px]">
+        <div className="flex gap-2 items-center">
+          <Image
+            src={process.env.NEXT_PUBLIC_APP_ICON || "favicon.ico"}
+            width={40}
+            alt="App Icon"
+          />
+          <Link href={"/"}>Beparari</Link>
+        </div>
+        <div className="drop-shadow-xl flex gap-1 sm:gap-4 items-center w-[170px] sm:w-[500px]">
           <Input.Search
-            placeholder="search products"
-            onChange={(e) => searchProduct(e.target.value)}
+            placeholder="Cari di Beparari Shop"
+            onChange={(e) => {
+              setSearch(e.target.value);
+            }}
+            enterButton
           />
           <div>
             <Cart />
           </div>
         </div>
-        <div>
-          <Button ghost onClick={() => setOpen(!open)}>
+        <div className="flex gap-2">
+          {/* <Button ghost onClick={() => setOpen(!open)}>
             <MenuOutlined />
-          </Button>
+          </Button> */}
+          {user.id && user.id !== "" ? (
+            <Button
+              danger
+              onClick={() => setLogout(true)}
+              icon={<LogoutOutlined />}
+              size="small"
+            >
+              Logout
+            </Button>
+          ) : (
+            <div className="flex gap-2">
+              <Link
+                href={"/sign-in"}
+                title="Login"
+                className="py-1 px-2 bg-green-500 hover:bg-green-600 rounded shadow text-sm"
+              >
+                Login
+              </Link>
+              <Link
+                href={"/sign-up"}
+                title="Register"
+                className="py-1 px-2 bg-blue-500 hover:bg-blue-600 rounded shadow text-sm"
+              >
+                Register
+              </Link>
+            </div>
+          )}
         </div>
       </div>
       <div>{children}</div>

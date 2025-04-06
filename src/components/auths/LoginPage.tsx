@@ -113,7 +113,17 @@ export default function LoginPage() {
               { min: 5, message: "min 5 character" },
             ]}
           >
-            <Input prefix={<UserOutlined />} />
+            <Input
+              prefix={<UserOutlined />}
+              onInput={(e) => {
+                let value = (e.target as HTMLInputElement).value;
+                value = value.replace(" ", "");
+
+                // Update nilai input setelah menghapus awalan
+                return ((e.target as HTMLInputElement).value =
+                  value.toLocaleLowerCase());
+              }}
+            />
           </Form.Item>
           <Form.Item
             label="Password"

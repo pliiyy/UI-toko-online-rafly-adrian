@@ -26,6 +26,8 @@ import { useProducts } from "../contexts/CartContext";
 import { useUser } from "../contexts/UserContext";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { ICategories } from "../contexts/ProductContext";
+import moment from "moment";
 const { Paragraph } = Typography;
 
 export const Cart = () => {
@@ -128,7 +130,7 @@ export const Cart = () => {
             {new Intl.NumberFormat("id-ID", {
               currency: "IDR",
               style: "currency",
-            }).format(record.price * 16000)}
+            }).format(record.price)}
           </>
         );
       },
@@ -189,7 +191,7 @@ export const Cart = () => {
             {new Intl.NumberFormat("id-ID", {
               currency: "IDR",
               style: "currency",
-            }).format(record.price * 16000 * record.qty)}
+            }).format(record.price * record.qty)}
           </>
         );
       },
@@ -299,7 +301,7 @@ export const Cart = () => {
             let plafond = 0;
 
             pageData.forEach((pd, i) => {
-              plafond += pd.price * 16000 * pd.qty;
+              plafond += pd.price * pd.qty;
             });
             return (
               <Table.Summary.Row className="bg-green-500 text-white text-center text-xs">
@@ -332,8 +334,8 @@ export const ProductCard = ({ data }: { data: IProduct }) => {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="border rounded shadow-md p-1 w-[150px] h-[250px] sm:w-[280px] sm:h-[400px] bg-slate-50 hover:scale-[.99] cursor-pointer">
-      <div className="w-[100px] h-[90px] sm:w-[260px] sm:h-[280px] rounded mx-auto">
+    <div className="border rounded shadow-md p-1 w-[150px] h-[250px] sm:w-[250px] sm:h-[370px] bg-slate-50 hover:scale-[.99] cursor-pointer">
+      <div className="w-[100px] h-[90px] sm:w-[250px] sm:h-[250px] rounded mx-auto">
         <Image
           src={data.image}
           width={"100%"}
@@ -343,41 +345,46 @@ export const ProductCard = ({ data }: { data: IProduct }) => {
         />
       </div>
       <div
-        className="mt-3 flex flex-col gap-3 p-2"
+        className="mt-1 flex flex-col gap-1 p-2"
         onClick={() => setOpen(true)}
       >
         <div className="font-bold text-sm text-center">
           <Paragraph
             ellipsis={{
-              rows: 2,
+              rows: 1,
               expandable: "collapsible",
             }}
-            className="text-xs"
           >
             {data.title}
           </Paragraph>
         </div>
-        <div className="flex flex-wrap gap-2 sm:gap-4 text-xs justify-between">
+        <div className="flex gap-2 text-xs justify-between items-end">
           <div>
             <div>
-              <span className="opacity-50">Rate: </span>
               <Rate
                 defaultValue={data.rating.rate}
                 style={{ fontSize: 9 }}
                 disabled
               />
             </div>
+            <p>{moment(data.createdAt).format("DD/MM/YYYY")}</p>
             <p>
-              <span className="opacity-50">Stock: </span> {data.rating.count}
+              <span>Stock: </span> {data.rating.count}
             </p>
           </div>
-          <div className="text-green-500">
-            <p className="text-xs opacity-50">Price</p>
-            <p>
+          <div className="flex flex-col gap-1">
+            {data.brand ? (
+              <p>
+                <span>Brand: </span> {data.brand}
+              </p>
+            ) : (
+              <p className="text-green-500">Price </p>
+            )}
+            <p className="text-green-500">
               {new Intl.NumberFormat("id-ID", {
                 currency: "IDR",
                 style: "currency",
-              }).format(data.price * 16000)}
+              }).format(data.price)}
             </p>
           </div>
         </div>
@@ -482,7 +489,7 @@ export const ModalDetailProduct = ({
               {new Intl.NumberFormat("id-ID", {
                 currency: "IDR",
                 style: "currency",
-              }).format(data.price * 16000)}
+              }).format(data.price)}
             </p>
           </div>
           <div className="flex gap-2">
@@ -703,5 +710,24 @@ export const LoginWithGoogle = () => {
       </Button>
       <NotificationModal data={notifData} setData={setNotifData} />
     </div>
+  );
+};
+
+export const CardCategory = ({ category }: { category: ICategories }) => {
+  return (
+    <Link href={`/products/${category.slug}`} title={category.name}>
+      <div
+        className="w-32 h-40 text-center p-2 border rounded shadow flex flex-col gap-1 items-center"
+        key={category.name}
+      >
+        <Image
+          src={category.image}
+          width={100}
+          height={100}
+          className="rounded"
+        />
+        {category.name}
+      </div>
+    </Link>
   );
 };

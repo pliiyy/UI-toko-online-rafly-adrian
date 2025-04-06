@@ -31,7 +31,7 @@ export const CheckOutCart = () => {
     (async () => {
       let temp = 0;
       data.forEach((d) => {
-        temp += d.price * d.qty * 16000;
+        temp += d.price * d.qty;
       });
       setTotal(temp);
     })();
@@ -55,7 +55,7 @@ export const CheckOutCart = () => {
             id: "",
             productId: d.id,
             Product: d,
-            price: d.price * 16000,
+            price: d.price,
             qty: d.qty,
             transactionId: "",
           }))
@@ -126,14 +126,14 @@ export const CheckOutCart = () => {
                         {new Intl.NumberFormat("id-ID", {
                           currency: "IDR",
                           style: "currency",
-                        }).format(product.price * 16000)}
+                        }).format(product.price)}
                       </p>
                       <p>:</p>
                       <p className="text-right">
                         {new Intl.NumberFormat("id-ID", {
                           currency: "IDR",
                           style: "currency",
-                        }).format(product.price * product.qty * 16000)}
+                        }).format(product.price * product.qty)}
                       </p>
                     </div>
                   </div>
@@ -284,7 +284,7 @@ export const CheckOutCart = () => {
             {new Intl.NumberFormat("id-ID", {
               currency: "IDR",
               style: "currency",
-            }).format(record.price * 16000)}
+            }).format(record.price)}
           </>
         );
       },
@@ -345,7 +345,7 @@ export const CheckOutCart = () => {
             {new Intl.NumberFormat("id-ID", {
               currency: "IDR",
               style: "currency",
-            }).format(record.price * 16000 * record.qty)}
+            }).format(record.price * record.qty)}
           </>
         );
       },
@@ -417,7 +417,7 @@ export const CheckOutCart = () => {
             let plafond = 0;
 
             pageData.forEach((pd, i) => {
-              plafond += pd.price * 16000 * pd.qty;
+              plafond += pd.price * pd.qty;
             });
             return (
               <Table.Summary.Row className="bg-green-500 text-white text-center text-xs">

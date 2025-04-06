@@ -31,7 +31,23 @@ export interface IProduct {
   category: string;
   image: string;
   price: number;
+  brand: string;
+  dimention: {
+    w: number;
+    h: number;
+    d: number;
+  };
+  createdAt: Date;
+  updatedAt: Date;
   rating: { rate: number; count: number };
+  reviews: IReviews[];
+}
+
+export interface IReviews {
+  rating: number;
+  comment: string;
+  createdAt: Date;
+  name: string;
 }
 
 export interface ICart extends IProduct {

@@ -143,7 +143,16 @@ export default function RegisterPage() {
               },
             ]}
           >
-            <Input />
+            <Input
+              onInput={(e) => {
+                let value = (e.target as HTMLInputElement).value;
+                value = value.replace(" ", "");
+
+                // Update nilai input setelah menghapus awalan
+                return ((e.target as HTMLInputElement).value =
+                  value.toLocaleLowerCase());
+              }}
+            />
           </Form.Item>
           <Form.Item
             label="password"

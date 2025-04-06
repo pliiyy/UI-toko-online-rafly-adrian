@@ -58,7 +58,7 @@ export const DetailProductCheckOut = ({ id }: { id: string }) => {
           id: "",
           productId: product.id,
           Product: product,
-          price: product.price * 16000,
+          price: product.price,
           qty: count,
           transactionId: "",
         },
@@ -122,14 +122,14 @@ export const DetailProductCheckOut = ({ id }: { id: string }) => {
                     {new Intl.NumberFormat("id-ID", {
                       currency: "IDR",
                       style: "currency",
-                    }).format(product.price * 16000)}
+                    }).format(product.price)}
                   </p>
                   <p>:</p>
                   <p className="text-right">
                     {new Intl.NumberFormat("id-ID", {
                       currency: "IDR",
                       style: "currency",
-                    }).format(product.price * count * 16000)}
+                    }).format(product.price * count)}
                   </p>
                 </div>
               </div>
@@ -141,7 +141,7 @@ export const DetailProductCheckOut = ({ id }: { id: string }) => {
                     {new Intl.NumberFormat("id-ID", {
                       currency: "IDR",
                       style: "currency",
-                    }).format(product.price * count * 16000)}
+                    }).format(product.price * count)}
                   </p>
                 </div>
                 <div className="flex gap-2">
@@ -151,7 +151,7 @@ export const DetailProductCheckOut = ({ id }: { id: string }) => {
                     {new Intl.NumberFormat("id-ID", {
                       currency: "IDR",
                       style: "currency",
-                    }).format(product.price * count * 16000 * 0.11)}
+                    }).format(product.price * count * 0.11)}
                   </p>
                 </div>
                 <div className="flex gap-2 font-bold items-center">
@@ -162,8 +162,7 @@ export const DetailProductCheckOut = ({ id }: { id: string }) => {
                       currency: "IDR",
                       style: "currency",
                     }).format(
-                      product.price * count * 16000 -
-                        product.price * count * 16000 * 0.11
+                      product.price * count - product.price * count * 0.11
                     )}
                   </p>
                 </div>
@@ -214,7 +213,7 @@ export const DetailProductCheckOut = ({ id }: { id: string }) => {
                 new Intl.NumberFormat("id-ID", {
                   currency: "IDR",
                   style: "currency",
-                }).format(product.price * 16000)}
+                }).format(product.price)}
             </p>
           </div>
           <div className="flex gap-2">
@@ -257,7 +256,7 @@ export const DetailProductCheckOut = ({ id }: { id: string }) => {
                 new Intl.NumberFormat("id-ID", {
                   currency: "IDR",
                   style: "currency",
-                }).format(product.price * count * 16000)
+                }).format(product.price * count)
               }
             />
           </div>
