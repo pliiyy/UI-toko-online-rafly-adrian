@@ -31,7 +31,7 @@ export default function Page() {
     })();
     setTimeout(() => {
       setLoadFirst(false);
-    }, 3000);
+    }, 2000);
   }, []);
 
   return (
@@ -88,14 +88,14 @@ export default function Page() {
           </svg>
         </div>
       </div>
-      <div className="mt-28 p-4 bg-white ">
+      <div className="mt-18 p-4 bg-white ">
         <Carousel autoplay className="w-[300px] h-[300px] mx-auto">
           <Image src="/promo1.jpeg" />
           <Image src="/promo2.jpeg" />
           <Image src="/promo3.jpeg" />
         </Carousel>
       </div>
-      <div className="mt-8 p-4 bg-white">
+      <div className="pt-8 p-4 bg-white">
         <p className="font-bold text-xl my-8">Kategori Pilihan</p>
         <div className="flex justify-around gap-2 flex-wrap">
           {categories.map((c, i) => (

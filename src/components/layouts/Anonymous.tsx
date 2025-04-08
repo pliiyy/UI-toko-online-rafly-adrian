@@ -59,10 +59,8 @@ export default function Anonymous({ children }: { children: React.ReactNode }) {
         googleLogout();
         setLogout(false);
         await user.getUser();
+        router.push("/");
         setTempUser(undefined);
-        setTimeout(() => {
-          router.push("/");
-        }, 100);
       })
       .catch((err) => {
         console.log(err);
@@ -80,10 +78,14 @@ export default function Anonymous({ children }: { children: React.ReactNode }) {
     setLoading(false);
   };
   useEffect(() => {
-    setTempUser(user);
+    if (user.id) {
+      setTempUser(user);
+    } else {
+      setTempUser(undefined);
+    }
   }, [user]);
   return (
-    <div className="z-40">
+    <div className="z-10">
       <div
         className={`flex justify-between py-2 px-4 bg-gradient-to-br from-green-400 to-blue-400 opacity-90 items-center font-bold text-lg text-gray-50 fixed top-0 w-full z-10`}
       >
@@ -111,15 +113,22 @@ export default function Anonymous({ children }: { children: React.ReactNode }) {
           {/* <Button ghost onClick={() => setOpen(!open)}>
             <MenuOutlined />
           </Button> */}
-          {user.id && user.id !== "" ? (
-            <Button
-              danger
-              onClick={() => setLogout(true)}
-              icon={<LogoutOutlined />}
-              size="small"
-            >
-              Logout
-            </Button>
+          {tempUser ? (
+            <div className="flex gap-4 items-end">
+              <div className="flex gap-1 rounded text-sm items-center">
+                <UserOutlined />
+                {tempUser.username}
+              </div>
+              <Button
+                danger
+                onClick={() => setLogout(true)}
+                icon={<LogoutOutlined />}
+                size="small"
+                style={{ background: "red", color: "white" }}
+              >
+                Logout
+              </Button>
+            </div>
           ) : (
             <div className="flex gap-2">
               <Link

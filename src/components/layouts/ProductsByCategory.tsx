@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { IProduct } from "../IInterfaces";
 import { ProductCard } from ".";
 import { Pagination, Spin } from "antd";
+import { DoubleLeftOutlined } from "@ant-design/icons";
+import Link from "next/link";
 
 export const ProductByCategory = ({ category }: { category: string }) => {
   const [data, setData] = useState<IProduct[]>([]);
@@ -51,6 +53,13 @@ export const ProductByCategory = ({ category }: { category: string }) => {
   }, [page]);
   return (
     <Spin spinning={loading}>
+      <Link
+        href={"/"}
+        title="Back to Homepage"
+        className="flex px-8 gap-2 items-center my-4"
+      >
+        <DoubleLeftOutlined /> Kembali
+      </Link>
       <div className="my-8 font-bold text-xl text-center">
         <p>{category.toUpperCase()}</p>
       </div>
