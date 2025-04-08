@@ -53,11 +53,10 @@ export const DataProvider = ({ children }: { children: React.ReactNode }) => {
       .then((res) => res.json())
       .then((res) => {
         setTotal(res.total);
-        console.log(res);
         if (selectedBrand) {
           setProducts(
             res.products
-              .filter((f: any) => f.brand.includes(selectedBrand))
+              .filter((f: any) => f.brand && f.brand.includes(selectedBrand))
               .map((product: any) => ({
                 id: product.id,
                 title: product.title,

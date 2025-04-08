@@ -99,7 +99,7 @@ export default function Page() {
         </Carousel>
       </div>
       <div className="pt-8 p-4 bg-white">
-        <p className="font-bold text-xl my-8">Kategori Pilihan</p>
+        <p className="font-bold text-xl my-8 text-center">Kategori Pilihan</p>
         <div className="flex justify-around gap-2 flex-wrap">
           {categories.map((c, i) => (
             <CardCategory key={i} category={c} />

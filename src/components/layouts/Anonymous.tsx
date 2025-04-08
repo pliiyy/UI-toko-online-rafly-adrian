@@ -36,7 +36,7 @@ export default function Anonymous({ children }: { children: React.ReactNode }) {
     type: "error",
   });
   const [tempUser, setTempUser] = useState<IUser>();
-  const { setSearch } = useData();
+  const { setSearch, setPage } = useData();
 
   const handleLogout = async () => {
     setLoading(true);
@@ -101,6 +101,9 @@ export default function Anonymous({ children }: { children: React.ReactNode }) {
           <Input.Search
             placeholder="Cari di Beparari Shop"
             onChange={(e) => {
+              if (e.target.value) {
+                setPage(1);
+              }
               setSearch(e.target.value);
             }}
             enterButton

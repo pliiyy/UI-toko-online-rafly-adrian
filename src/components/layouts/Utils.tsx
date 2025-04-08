@@ -10,7 +10,7 @@ import {
   ShoppingCartOutlined,
   TagFilled,
 } from "@ant-design/icons";
-import { ICart, IProduct, ModalMessageProps } from "../IInterfaces";
+import { ICart, IProduct, IUser, ModalMessageProps } from "../IInterfaces";
 import {
   Button,
   Image,
@@ -36,6 +36,7 @@ export const Cart = () => {
   const [loading, setLoading] = useState(false);
   const user = useUser();
   const router = useRouter();
+  const [tempUser, setTempUser] = useState<IUser>();
 
   const handleAction = async (id: string, action: string) => {
     setLoading(true);
@@ -250,6 +251,14 @@ export const Cart = () => {
     router.push("/check-out");
   };
 
+  useEffect(() => {
+    if (user.id) {
+      setTempUser(user);
+    } else {
+      setTempUser(undefined);
+    }
+  }, [user]);
+
   return (
     <>
       <div
@@ -267,9 +276,7 @@ export const Cart = () => {
         onCancel={() => setOpenCart(false)}
         footer={[
           <div key={"login"} className="flex gap-2 justify-end items-center">
-            <div
-              className={`${!user.id || user.id === "" ? "flex" : "hidden"}`}
-            >
+            <div className={`${tempUser ? "hidden" : "flex"}`}>
               <LoginWithGoogle />
             </div>
             <div>
@@ -278,7 +285,7 @@ export const Cart = () => {
                 icon={<DollarCircleFilled />}
                 type="primary"
                 size="small"
-                disabled={data.length === 0 ? true : !user.id ? true : false}
+                disabled={data.length === 0 ? true : !tempUser ? true : false}
                 onClick={() => handleCheckOut()}
               >
                 Checkout

@@ -9,6 +9,7 @@ export const ProductByCategory = ({ category }: { category: string }) => {
   const [data, setData] = useState<IProduct[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -16,7 +17,7 @@ export const ProductByCategory = ({ category }: { category: string }) => {
       setLoading(true);
       const skip = (page - 1) * 10;
       await fetch(
-        `https://dummyjson.com/products/category/${category}?limit=10&skip=${skip}`
+        `https://dummyjson.com/products/category/${category}?limit=${pageSize}&skip=${skip}`
       )
         .then((res) => res.json())
         .then((res) => {
@@ -71,8 +72,11 @@ export const ProductByCategory = ({ category }: { category: string }) => {
       <div className="my-8 flex justify-center">
         <Pagination
           total={total}
-          pageSize={10}
-          onChange={(page) => setPage(page)}
+          pageSize={pageSize}
+          onChange={(page, pageSize) => {
+            setPage(page);
+            setPageSize(pageSize);
+          }}
         />
       </div>
     </Spin>
