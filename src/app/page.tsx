@@ -17,6 +17,8 @@ export default function Page() {
     setOrder,
     setPage,
     setSelectedBrand,
+    pageSize,
+    setPageSize,
   } = useData();
 
   useEffect(() => {
@@ -27,6 +29,7 @@ export default function Page() {
       setOrder("asc");
       setSelectedBrand("");
       setPage(1);
+      setPageSize(10);
       setLoading(false);
     })();
     setTimeout(() => {
@@ -152,8 +155,11 @@ export default function Page() {
           <div className="my-8 flex justify-center">
             <Pagination
               total={total}
-              pageSize={10}
-              onChange={(page) => setPage(page)}
+              pageSize={pageSize}
+              onChange={(page, pageSize) => {
+                setPage(page);
+                setPageSize(pageSize);
+              }}
             />
           </div>
         </div>

@@ -612,7 +612,6 @@ export const LoginWithGoogle = () => {
         .then((res) => res.json())
         .then((res) => res)
         .catch((err) => console.log(err));
-
       const userData = await fetch("/api/auth/google", {
         method: "POST",
         headers: {
@@ -621,9 +620,7 @@ export const LoginWithGoogle = () => {
         body: JSON.stringify(userInfo),
       })
         .then((res) => res.json())
-        .then(async (res) => {
-          return res.data;
-        })
+        .then((res) => res.data)
         .catch((err) => {
           console.log(err);
           setNotifData({

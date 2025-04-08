@@ -11,6 +11,8 @@ export interface IProductContext {
   setPage: Function;
   setOrder: Function;
   setSelectedBrand: Function;
+  pageSize: number;
+  setPageSize: Function;
 }
 export interface ICategories {
   name: string;
@@ -26,6 +28,8 @@ const dataContext = createContext<IProductContext>({
   setPage: () => {},
   setOrder: () => {},
   setSelectedBrand: () => {},
+  pageSize: 10,
+  setPageSize: () => {},
 });
 
 export const DataProvider = ({ children }: { children: React.ReactNode }) => {
@@ -34,14 +38,16 @@ export const DataProvider = ({ children }: { children: React.ReactNode }) => {
   const [total, setTotal] = useState(0);
   const [search, setSearch] = useState<string>();
   const [page, setPage] = useState(1);
+
+  const [pageSize, setPageSize] = useState(10);
   const [orderBy, setOrderBy] = useState("asc");
   const [selectedBrand, setSelectedBrand] = useState<string>();
 
   const getDataProducts = async () => {
-    const skip = (page - 1) * 10;
+    const skip = (page - 1) * pageSize;
     await fetch(
       `https://dummyjson.com/products${search ? "/search?q=" + search : ""}${
-        search ? "&limit=10" : "?limit=10"
+        search ? "&limit=" + pageSize : "?limit=" + pageSize
       }&skip=${skip}&sortBy=price&order=${orderBy}`
     )
       .then((res) => res.json())
@@ -137,7 +143,7 @@ export const DataProvider = ({ children }: { children: React.ReactNode }) => {
     (async () => {
       await getDataProducts();
     })();
-  }, [search, page, orderBy, selectedBrand]);
+  }, [search, page, orderBy, selectedBrand, pageSize]);
 
   return (
     <dataContext.Provider
@@ -150,6 +156,8 @@ export const DataProvider = ({ children }: { children: React.ReactNode }) => {
         setPage: setPage,
         setOrder: setOrderBy,
         setSelectedBrand: setSelectedBrand,
+        pageSize: pageSize,
+        setPageSize: setPageSize,
       }}
     >
       {children}

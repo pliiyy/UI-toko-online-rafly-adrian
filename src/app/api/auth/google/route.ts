@@ -4,6 +4,7 @@ import bcrypt from "bcrypt";
 
 export const POST = async (req: NextRequest) => {
   const data = await req.json();
+
   try {
     const findUser = await prisma.user.findFirst({
       where: { email: data.email },
@@ -14,19 +15,20 @@ export const POST = async (req: NextRequest) => {
         data: {
           fullname: data.name,
           email: data.email,
-          username: data.name.replaceAll(" ", "").toLowerCase(),
+          username: data.name.replace(" ", "").toLowerCase(),
           password: pass,
           role: "PELANGGAN",
           image: data.picture,
           createdAt: new Date(),
           updatedAt: new Date(),
-          phone: "628",
+          phone: (Math.random() * 1000).toFixed(4),
           address: "Not Set",
+          isActive: true,
         },
       });
       return NextResponse.json(
-        { msg: "Berhasil Login", status: 201, data: save },
-        { status: 201 }
+        { msg: "Berhasil Login", status: 200, data: save },
+        { status: 200 }
       );
     }
     return NextResponse.json(
