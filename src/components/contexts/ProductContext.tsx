@@ -48,7 +48,7 @@ export const DataProvider = ({ children }: { children: React.ReactNode }) => {
     await fetch(
       `https://dummyjson.com/products${search ? "/search?q=" + search : ""}${
         search ? "&limit=" + pageSize : "?limit=" + pageSize
-      }&skip=${skip}&sortBy=price&order=${orderBy}`
+      }&skip=${skip}&sortBy=price&order=${orderBy || "asc"}`
     )
       .then((res) => res.json())
       .then((res) => {

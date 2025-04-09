@@ -91,7 +91,7 @@ export const DetailProductCheckOut = ({ id }: { id: string }) => {
               <div className="text-center my-4 border-b border-dotted">
                 <div className="text-xl font-bold my-4">
                   <p>Productc App</p>
-                  <p>Rafly Adrian</p>
+                  <p>Beparari</p>
                 </div>
                 <p className="opacity-70">Telp: (021) 222 - 333</p>
               </div>
