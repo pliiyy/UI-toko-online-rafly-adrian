@@ -23,10 +23,32 @@ export const DetailProductCheckOut = ({ id }: { id: string }) => {
 
   useEffect(() => {
     (async () => {
-      await fetch("https://fakestoreapi.com/products/" + id)
+      await fetch("https://dummyjson.com/products/" + id)
         .then((res) => res.json())
         .then((res) => {
-          setProduct(res);
+          setProduct({
+            id: res.id,
+            title: res.title,
+            description: res.description,
+            category: res.category,
+            image: res.thumbnail,
+            price: res.price * 16000,
+            brand: res.brand,
+            dimention: {
+              w: res.dimensions.width,
+              h: res.dimensions.heigh,
+              d: res.dimensions.depth,
+            },
+            createdAt: res.meta.createdAt,
+            updatedAt: res.meta.updatedAt,
+            rating: { rate: res.rating, count: res.stock },
+            reviews: res.reviews.map((review: any) => ({
+              rating: review.rating,
+              comment: review.comment,
+              createdAt: review.date,
+              name: review.reviewerName,
+            })),
+          });
         })
         .catch((err) => {
           console.log(err);
@@ -52,7 +74,7 @@ export const DetailProductCheckOut = ({ id }: { id: string }) => {
     const trx: ITransaction = {
       id: "",
       User: { ...user },
-      userId: "",
+      userId: user.id,
       DetailTransaction: [
         {
           id: "",
@@ -90,8 +112,8 @@ export const DetailProductCheckOut = ({ id }: { id: string }) => {
             <div className="w-[58mm] mx-auto text-xs">
               <div className="text-center my-4 border-b border-dotted">
                 <div className="text-xl font-bold my-4">
-                  <p>Productc App</p>
                   <p>Beparari</p>
+                  <p>Shop</p>
                 </div>
                 <p className="opacity-70">Telp: (021) 222 - 333</p>
               </div>

@@ -92,8 +92,8 @@ export const CheckOutCart = () => {
             <div className="w-[58mm] mx-auto text-xs">
               <div className="text-center my-4 border-b border-dotted">
                 <div className="text-xl font-bold my-4">
-                  <p>Productc App</p>
                   <p>Beparari</p>
+                  <p>Shop</p>
                 </div>
                 <p className="opacity-70">Telp: (021) 222 - 333</p>
               </div>
